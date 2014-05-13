@@ -22,7 +22,7 @@ public class ByPassReceiverThread extends TerminalsThread {
     private DataInputStream input;
     private DataOutputStream output;
 
-    public ByPassReceiverThread(MessageThread messageThread, Socket clientSocket) {
+    public ByPassReceiverThread(MessageThread messageThread, Socket clientSocket) throws Exception {
         super(messageThread);
 
         this.clientSocket = clientSocket;
@@ -78,6 +78,8 @@ public class ByPassReceiverThread extends TerminalsThread {
     @Override
     public void interrupt() {
 
+        Log.i(TAG, "ByPassReceiver interrupt");
+        
         SlipInputReader.setExit(true);
 
         try {

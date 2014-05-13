@@ -11,8 +11,12 @@ abstract public class TerminalsThread extends Thread implements
 
     protected final MessageThread messageThread;
 
-    protected TerminalsThread(MessageThread messageThread) {
+    protected TerminalsThread(MessageThread messageThread) throws Exception {
         super();
+        if(messageThread == null) {
+            throw new Exception("MessageThread is NULL!!!! FATAL FATAL FATAL error.");
+        }
+                
         this.messageThread = messageThread;
     }
 

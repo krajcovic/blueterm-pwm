@@ -76,6 +76,8 @@ public class MonetBTAPI {
         if (create()) {
             if (start()) {
                 connectDevice(inputData.getBlueHwAddress(), false);
+                
+                
 
                 // Pockej dokud neskonci spojovani
                 while (terminalService.getState() == TerminalState.STATE_CONNECTING) {
@@ -93,6 +95,7 @@ public class MonetBTAPI {
                             TerminalState.STATE_CONNECTED, in.getCommand()
                                     .ordinal());
                 }
+                
                 while (terminalService.getState() == TerminalState.STATE_CONNECTED) {
                     // Zacni vykonavat smycku
                     try {
@@ -105,8 +108,13 @@ public class MonetBTAPI {
 
                 outputData = messageThread.getValue();
             }
+            else {
+                Log.e(TAG,"crate failed");
+            }
+        } else {
+            Log.e(TAG,"start failed");
         }
-
+        
         stop();
 
         return outputData;
@@ -166,14 +174,30 @@ public class MonetBTAPI {
     private static void setupTerminal() {
         Log.i(TAG, "setupTerminal() creating handler");
 
-        messageThread = new MessageThread(activity, TERMINALPORT,
-                inputData);
+        messageThread = new MessageThread(activity, TERMINALPORT, inputData);
 
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        terminalService = new TerminalServiceBT(activity,
-                messageThread);
-        messageThread.setTerminalService(terminalService);
-        messageThread.start();
+        if (messageThread != null) {
+            // Initialize the BluetoothChatService to perform bluetooth
+            // connections
+            terminalService = new TerminalServiceBT(activity, messageThread);
+            Log.i(TAG, "TerminalServiceBT created");
+            messageThread.setTerminalService(terminalService);
+            Log.i(TAG, "TerminalServiceBT setted to messageThread");
+            messageThread.start();
+            Log.i(TAG, "messageThread starting");
+
+            while (messageThread.isAlive() == false) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // // TODO Auto-generated catch block
+                    // e.printStackTrace();
+                }
+            }
+            Log.i(TAG, "Waiting for messageThread isAlive");
+        } else {
+            Log.e(TAG, "MessageThread not created!!!! TODO: WHY???");
+        }
     }
 
     /**
@@ -189,8 +213,10 @@ public class MonetBTAPI {
         // BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
 
         // Attempt to connect to the device
-        terminalService.connect(/*bluetoothAdapter.getRemoteDevice(address),
-                secure*/);
+        terminalService.connect(/*
+                                 * bluetoothAdapter.getRemoteDevice(address),
+                                 * secure
+                                 */);
     }
 
 }

@@ -8,6 +8,8 @@ package cz.monetplus.blueterm.util;
  */
 public final class MonetUtils {
 
+    public static final long THREAD_RUN_SLEEP = 200;
+
     /**
      * Private constructor.
      */

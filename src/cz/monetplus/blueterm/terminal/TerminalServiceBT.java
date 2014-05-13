@@ -187,6 +187,15 @@ public class TerminalServiceBT {
 
         setState(TerminalState.STATE_CONNECTING);
 
+        while (getState() != TerminalState.STATE_CONNECTING) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                // e.printStackTrace();
+            }
+        }
+
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(/* device, secure */);
         // mConnectThread = new AcceptThread(bluetoothAdapter, secure);
@@ -205,7 +214,7 @@ public class TerminalServiceBT {
     public synchronized void connected() throws Exception {
         Log.d(TAG, "connected");
 
-        //interrupt();
+        // interrupt();
 
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = new ConnectedThread(messageThread, activity);
@@ -254,29 +263,29 @@ public class TerminalServiceBT {
 
     private synchronized void interrupt() {
         if (mConnectThread != null) {
-            
-//            do {
-                try {
-                    mConnectThread.interrupt();
-                    mConnectThread.join(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-//            } while (mConnectThread.isAlive());
+
+            // do {
+            try {
+                mConnectThread.interrupt();
+                mConnectThread.join(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // } while (mConnectThread.isAlive());
 
             mConnectThread = null;
         }
 
         if (mConnectedThread != null) {
-            
-//            do {
-                try {
-                    mConnectedThread.interrupt();
-                    mConnectedThread.join(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-//            } while (mConnectedThread.isAlive());
+
+            // do {
+            try {
+                mConnectedThread.interrupt();
+                mConnectedThread.join(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // } while (mConnectedThread.isAlive());
             mConnectedThread = null;
         }
     }
