@@ -215,7 +215,7 @@ public class MessageThread extends Thread {
         this.terminalService = service;
     }
 
-    public void handleMessage(Message msg) {
+    public void handleMessage(final Message msg) {
         if (msg == null) {
             return;
         }
@@ -223,7 +223,7 @@ public class MessageThread extends Thread {
         case HandleMessages.MESSAGE_STATE_CHANGE:
             handleStateChange(msg);
             break;
-            
+
         case HandleMessages.MESSAGE_TERM_SEND_COMMAND:
             break;
         // case HandleMessages.MESSAGE_SERVER_WRITE:
@@ -254,10 +254,13 @@ public class MessageThread extends Thread {
             break;
         case HandleMessages.MESSAGE_TOAST:
             if (msg != null && msg.obj != null) {
-                // Toast.makeText(activity, msg.obj.toString(),
-                // Toast.LENGTH_SHORT)
-                // .show();
                 Log.i(TAG, msg.obj.toString());
+                activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(activity, msg.obj.toString(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
             }
             break;
         case HandleMessages.MESSAGE_QUIT:
@@ -344,38 +347,15 @@ public class MessageThread extends Thread {
                     BProtocol bprotocol = new BProtocolFactory()
                             .deserialize(termFrame.getData());
 
-                    if (bprotocol.getProtocolType().equals("B2")) {
-                        transactionOutputData = new TransactionOut();
-                        try {
-                            transactionOutputData.setResultCode(Integer
-                                    .valueOf(bprotocol.getTagMap().get(
-                                            BProtocolTag.ResponseCode)));
-                        } catch (Exception e) {
-                            transactionOutputData.setResultCode(-1);
-                        }
-                        transactionOutputData.setMessage(bprotocol.getTagMap()
-                                .get(BProtocolTag.ServerMessage));
-                        try {
-                            transactionOutputData.setAuthCode(Integer
-                                    .valueOf(bprotocol.getTagMap().get(
-                                            BProtocolTag.AuthCode)));
-                        } catch (Exception e) {
-                            transactionOutputData.setAuthCode(0);
-                        }
-                        try {
-                            transactionOutputData.setSeqId(Integer
-                                    .valueOf(bprotocol.getTagMap().get(
-                                            BProtocolTag.SequenceId)));
-                        } catch (Exception e) {
-                            transactionOutputData.setSeqId(0);
-                        }
-                        transactionOutputData.setCardNumber(bprotocol
-                                .getTagMap().get(BProtocolTag.PAN));
-                        transactionOutputData.setCardType(bprotocol.getTagMap()
-                                .get(BProtocolTag.CardType));
+                    if (bprotocol.getProtocolType().equals("B0")) {
+                        String message = "Terminal working(B0)...";
 
-                        this.stopThread(transactionOutputData.getResultCode(),
-                                transactionOutputData.getMessage());
+                        this.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
+                                message);
+                    }
+                    
+                    if (bprotocol.getProtocolType().equals("B2")) {
+                        executeB2(bprotocol);
                     }
 
                     break;
@@ -393,6 +373,37 @@ public class MessageThread extends Thread {
         }
     }
 
+    private void executeB2(BProtocol bprotocol) {
+        transactionOutputData = new TransactionOut();
+        try {
+            transactionOutputData.setResultCode(Integer.valueOf(bprotocol
+                    .getTagMap().get(BProtocolTag.ResponseCode)));
+        } catch (Exception e) {
+            transactionOutputData.setResultCode(-1);
+        }
+        transactionOutputData.setMessage(bprotocol.getTagMap().get(
+                BProtocolTag.ServerMessage));
+        try {
+            transactionOutputData.setAuthCode(Integer.valueOf(bprotocol
+                    .getTagMap().get(BProtocolTag.AuthCode)));
+        } catch (Exception e) {
+            transactionOutputData.setAuthCode(0);
+        }
+        try {
+            transactionOutputData.setSeqId(Integer.valueOf(bprotocol
+                    .getTagMap().get(BProtocolTag.SequenceId)));
+        } catch (Exception e) {
+            transactionOutputData.setSeqId(0);
+        }
+        transactionOutputData.setCardNumber(bprotocol.getTagMap().get(
+                BProtocolTag.PAN));
+        transactionOutputData.setCardType(bprotocol.getTagMap().get(
+                BProtocolTag.CardType));
+
+        this.stopThread(transactionOutputData.getResultCode(),
+                transactionOutputData.getMessage());
+    }
+
     private void stopThread(Integer resultCode, String resultMessage) {
         transactionOutputData.setResultCode(resultCode);
         transactionOutputData.setMessage(resultMessage);
@@ -407,8 +418,8 @@ public class MessageThread extends Thread {
     // }
 
     private void handleStateChange(Message msg) {
-        Log.i(TAG, "MESSAGE_STATE_CHANGE: " + getCurrentTerminalState() + " -> "
-                + msg.arg1);
+        Log.i(TAG, "MESSAGE_STATE_CHANGE: " + getCurrentTerminalState()
+                + " -> " + msg.arg1);
         this.currentTerminalState = msg.arg1;
 
         switch (msg.arg1) {
@@ -423,6 +434,8 @@ public class MessageThread extends Thread {
                     break;
                 case PAY:
                     pay();
+                    break;
+                case ONLYCONNECT:
                     break;
                 case UNKNOWN:
                     break;
@@ -451,6 +464,8 @@ public class MessageThread extends Thread {
             break;
 
         case TerminalCommands.TERM_CMD_CONNECT:
+            this.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
+                    "Connecting to server...");
             serverConnectionID = serverFrame.getId();
 
             int port = MonetUtils.getInt(serverFrame.getData()[4],

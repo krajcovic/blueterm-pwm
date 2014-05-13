@@ -1,5 +1,7 @@
 package cz.monetplus.blueterm;
 
+import java.util.Currency;
+
 public class TransactionIn {
     private String blueHwAddress;
     private String hostIP;

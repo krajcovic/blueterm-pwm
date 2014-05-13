@@ -133,6 +133,8 @@ public class TCPClient {
 
                 mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 0, -1,
                         null);
+                mHandler.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
+                        "Connected to server.");
 
                 // in this while the client listens for the messages sent by the
                 // server

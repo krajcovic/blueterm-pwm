@@ -145,17 +145,7 @@ public class TerminalServiceBT {
     public synchronized void start() {
         Log.d(TAG, "start");
 
-        // Cancel any thread attempting to make a connection
-        if (mConnectThread != null) {
-            mConnectThread.interrupt();
-            mConnectThread = null;
-        }
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {
-            mConnectedThread.interrupt();
-            mConnectedThread = null;
-        }
+        interrupt();
 
         setState(TerminalState.STATE_NONE);
     }
@@ -215,17 +205,7 @@ public class TerminalServiceBT {
     public synchronized void connected() throws Exception {
         Log.d(TAG, "connected");
 
-        // Cancel the thread that completed the connection
-        if (mConnectThread != null) {
-            mConnectThread.interrupt();
-            mConnectThread = null;
-        }
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {
-            mConnectedThread.interrupt();
-            mConnectedThread = null;
-        }
+        //interrupt();
 
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = new ConnectedThread(messageThread, activity);
@@ -269,13 +249,34 @@ public class TerminalServiceBT {
         setState(TerminalState.STATE_NONE);
         messageThread = null;
 
+        interrupt();
+    }
+
+    private synchronized void interrupt() {
         if (mConnectThread != null) {
-            mConnectThread.interrupt();
+            
+//            do {
+                try {
+                    mConnectThread.interrupt();
+                    mConnectThread.join(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+//            } while (mConnectThread.isAlive());
+
             mConnectThread = null;
         }
 
         if (mConnectedThread != null) {
-            mConnectedThread.interrupt();
+            
+//            do {
+                try {
+                    mConnectedThread.interrupt();
+                    mConnectedThread.join(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+//            } while (mConnectedThread.isAlive());
             mConnectedThread = null;
         }
     }
@@ -344,7 +345,7 @@ public class TerminalServiceBT {
      */
     public class ConnectThread extends Thread {
         public ConnectThread(/* BluetoothDevice device, boolean secure */) {
-
+            interrupt();
         }
 
         public void run() {

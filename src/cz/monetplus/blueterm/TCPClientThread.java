@@ -106,15 +106,12 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
     }
 
     public void interrupt() {
+        
+        mHandler.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
+                "Disconecting from server.");
 
         if (mTcpClient != null) {
             mTcpClient.stopClient();
-            // try {
-            // wait(500);
-            // } catch (InterruptedException e) {
-            // // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // }
             mTcpClient = null;
         }
 

@@ -118,7 +118,7 @@ public class MonetBTAPI {
      * @return true for corect creating.
      */
     private static Boolean create() {
-        Log.e(TAG, "+++ ON CREATE +++");
+        Log.i(TAG, "+++ ON CREATE +++");
 
         // Get local Bluetooth adapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -133,7 +133,7 @@ public class MonetBTAPI {
      * @return True for corect setup.
      */
     private static Boolean start() {
-        Log.e(TAG, "++ ON START ++");
+        Log.i(TAG, "++ ON START ++");
 
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
@@ -151,7 +151,7 @@ public class MonetBTAPI {
     }
 
     private static void stop() {
-        Log.e(TAG, "++ ON STOP ++");
+        Log.i(TAG, "++ ON STOP ++");
 
         if (terminalService != null) {
             terminalService.stop();
@@ -164,7 +164,7 @@ public class MonetBTAPI {
     }
 
     private static void setupTerminal() {
-        Log.d(TAG, "setupTerminal() creating handler");
+        Log.i(TAG, "setupTerminal() creating handler");
 
         messageThread = new MessageThread(activity, TERMINALPORT,
                 inputData);

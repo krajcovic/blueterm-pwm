@@ -27,6 +27,7 @@ public class ByPassReceiverThread extends TerminalsThread {
 
         this.clientSocket = clientSocket;
         try {
+            SlipInputReader.setExit(false);
             input = new DataInputStream(this.clientSocket.getInputStream());
             output = new DataOutputStream(this.clientSocket.getOutputStream());
         } catch (IOException e) {
@@ -42,15 +43,20 @@ public class ByPassReceiverThread extends TerminalsThread {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] buffer = SlipInputReader.read(input);
+                if (buffer != null) {
+                    Log.i(TAG,
+                            "TCP read (hex): " + MonetUtils.bytesToHex(buffer));
 
-                // Send the obtained bytes to the UI Activity
-                if (messageThread != null) {
-                    messageThread.addMessage(HandleMessages.MESSAGE_TERM_READ,
-                            buffer.length, 0, buffer);
+                    // Send the obtained bytes to the UI Activity
+                    if (messageThread != null) {
+                        messageThread.addMessage(
+                                HandleMessages.MESSAGE_TERM_READ,
+                                buffer.length, 0, buffer);
+                    }
                 }
             } catch (SocketException e) {
                 // OK.
-                e.printStackTrace();
+                // e.printStackTrace();
                 // returnMessage = "Socket closed.";
             } catch (IOException e) {
                 e.printStackTrace();
@@ -71,22 +77,35 @@ public class ByPassReceiverThread extends TerminalsThread {
 
     @Override
     public void interrupt() {
+
+        SlipInputReader.setExit(true);
+
         try {
-            output.close();
+            if (output != null) {
+                output.flush();
+                output.close();
+                output = null;
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         try {
-            input.close();
+            if (input != null) {
+                input.close();
+                input = null;
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         try {
-            clientSocket.close();
+            if (clientSocket != null) {
+                clientSocket.close();
+                // clientSocket = null;
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

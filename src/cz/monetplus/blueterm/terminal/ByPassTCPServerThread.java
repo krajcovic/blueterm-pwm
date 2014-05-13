@@ -49,6 +49,11 @@ public class ByPassTCPServerThread extends TerminalsThread {
             while (!Thread.currentThread().isInterrupted()
                     && commThread != null && !commThread.isInterrupted()) {
                 // TODO: treba kontrolovat ze je tcp server v poradku.
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+
+                }
             }
         } catch (IOException e) {
             if (e != null) {
@@ -73,12 +78,14 @@ public class ByPassTCPServerThread extends TerminalsThread {
     @Override
     public void interrupt() {
         if (this.commThread != null) {
-            this.commThread.interrupt();
-            try {
-                this.commThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+           // do {
+                try {
+                    this.commThread.interrupt();
+                    this.commThread.join(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            //} while (this.commThread.isAlive());
             this.commThread = null;
         }
 

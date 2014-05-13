@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.verifone.vmf.api.VMF;
+import com.verifone.vmf.Constants;
 import com.verifone.vmf.api.VMF.AppLinkListener;
 import com.verifone.vmf.api.VMF.PrinterDataListener;
 
@@ -57,7 +58,7 @@ public class ConnectedThread extends TerminalsThread {
         Log.i(TAG, "libPrt Version: " + help);
 
         VMF.setAppLinkListener(new AppLinkReceiver());
-        VMF.setPrinterDataListener(new DataReceiver());
+        // VMF.setPrinterDataListener(new DataReceiver());
 
         bypassServerThread = new ByPassTCPServerThread(messageThread,
                 LISTEN_PORT);
@@ -68,38 +69,44 @@ public class ConnectedThread extends TerminalsThread {
 
         @Override
         public void onResponse(final byte[] recvBuf, final boolean timeOut) {
-            Log.i(TAG, "Received hex: " + MonetUtils.bytesToHex(recvBuf)
-                    + "Timeout: " + timeOut);
+            if (recvBuf != null) {
+                Log.i(TAG, "Received hex: " + MonetUtils.bytesToHex(recvBuf)
+                        + "Timeout: " + timeOut);
+            }
+            
+            if(timeOut) {
+                messageThread.addMessage(HandleMessages.MESSAGE_QUIT, -10, 0,
+                        "AppLinkReceiver timeout!");
+            }
         }
-    }
-
-    private class DataReceiver implements PrinterDataListener {
-
-        @Override
-        public void onReceive(byte[] recvBuf) {
-            Log.i(TAG, "Received hex: " + MonetUtils.bytesToHex(recvBuf));
-        }
-
     }
 
     public void run() {
         Log.i(TAG, "BEGIN mConnectedThread");
 
-        if (VMF.vmfConnectVx600(activity, new Vx600ConnectionListener(), APP_ID) == 0) {
+        Log.e(TAG, "calling vmfConnectVx600");
+        if (VMF.vmfConnectVx600(activity, new Vx600ConnectionListener(
+                messageThread), APP_ID) == 0) {
 
-            VMF.vmfAppLinkSend(DESTINATION_ID,
-                    ("127.0.0.1:" + LISTEN_PORT).getBytes(), 5000);
+            int vmfAppLinkSend = VMF.vmfAppLinkSend(DESTINATION_ID,
+                    ("127.0.0.1:" + LISTEN_PORT).getBytes(), 5000 * 1000);
+           
+//            VMF.VMF_ERROR.VMF_OK;
 
             // Keep listening to the InputStream while connected
             while (!Thread.currentThread().isInterrupted()
-                    && bypassServerThread != null
+                    && VMF.isVx600Connected() && bypassServerThread != null
                     && !bypassServerThread.isInterrupted()) {
                 // todo: treba wait nebo tak neco.
                 // todo: nebo kontrola, ze je vse v poradku
                 // todo: nebo posilani ze jsem ready
+
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+
+                }
             }
-            
-            VMF.vmfDisconnectVx600();
 
             // Ukonci to.
             messageThread.addMessage(HandleMessages.MESSAGE_QUIT, 0, 0, "OK");
@@ -118,24 +125,49 @@ public class ConnectedThread extends TerminalsThread {
     @Override
     public void write(byte[] buffer) throws IOException {
         bypassServerThread.write(buffer);
+        // VMF.vmfAppLinkSend(DESTINATION_ID, buffer, 5000 * 1000);
 
     }
 
     @Override
     public void interrupt() {
-        
-        VMF.vmfDisconnectVx600();
-        
+
+        VMF.setAppLinkListener(null);
+
         if (bypassServerThread != null) {
-            bypassServerThread.interrupt();
-            try {
-                bypassServerThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            do {
+                try {
+                    bypassServerThread.interrupt();
+                    bypassServerThread.join(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+//            } while (bypassServerThread.isAlive());
             bypassServerThread = null;
         }
 
         super.interrupt();
+        
+        // Zkus pockat az si VMF dokecas.
+        try {
+            sleep(2000);
+        } catch (InterruptedException e1) {
+            // TODO Auto-generated catch block
+//            e1.printStackTrace();
+        }
+        
+        // VMF.vmfDisconnectVx600();       
+        while (VMF.isVx600Connected()) {
+            try {
+                Log.e(TAG, "calling vmfDisconnectVx600");
+                VMF.vmfDisconnectVx600();
+                sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                // e.printStackTrace();
+            }
+
+        }
+
     }
 }
