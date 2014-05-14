@@ -76,26 +76,14 @@ public class MonetBTAPI {
         // timeoutem uvnitr knihovny vmf
         // Ta pitoma knihovna si chce hned po navazani spojeni vymenit nejake
         // data, a kdyz mu to hned
-        // diskonektnu, tak se z toho nezpamatuje, tak to delam na suda/licha v jednom zapnu v druhem dotazu vypnu
+        // diskonektnu, tak se z toho nezpamatuje, tak to delam na suda/licha v
+        // jednom zapnu v druhem dotazu vypnu
         if (VMF.isVx600Connected()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
             VMF.vmfDisconnectVx600();
             isConnected = true;
         } else {
             if (VMF.vmfConnectVx600(act, null, 1) == 0
                     && VMF.isVx600Connected()) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                // VMF.vmfDisconnectVx600();
                 isConnected = true;
             }
         }
@@ -119,19 +107,14 @@ public class MonetBTAPI {
         outputData = new TransactionOut();
 
         if (VMF.isVx600Connected()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
             VMF.vmfDisconnectVx600();
         }
 
         if (create()) {
             if (start()) {
-                connectDevice(/* inputData.getBlueHwAddress(), false */);
+                connectDevice();
 
+                // TODO: Tohle predelat na threadMessage zpusob, nekdy v budoucnu :)
                 // Pockej dokud neskonci spojovani
                 while (terminalService.getState() == TerminalState.STATE_CONNECTING) {
                     try {
@@ -180,10 +163,6 @@ public class MonetBTAPI {
     private static Boolean create() {
         Log.i(TAG, "+++ ON CREATE +++");
 
-        // Get local Bluetooth adapter
-        // bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        // relate the listView from java to the one created in xml
         return true;
     }
 
@@ -195,17 +174,12 @@ public class MonetBTAPI {
     private static Boolean start() {
         Log.i(TAG, "++ ON START ++");
 
-        // If BT is not on, request that it be enabled.
-        // setupChat() will then be called during onActivityResult
-        // if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-        // outputData.setMessage("Bluetooth is not available");
-        // // Otherwise, setup the chat session
-        // } else {
+        
+        // Bluetooth zapina aplikace. 
         if (terminalService == null) {
             setupTerminal();
             return true;
         }
-        // }
 
         return false;
     }
