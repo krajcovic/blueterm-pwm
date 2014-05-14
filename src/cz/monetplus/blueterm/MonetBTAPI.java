@@ -71,6 +71,12 @@ public class MonetBTAPI {
         activity = act;
         Boolean isConnected = false;
 
+        // Tak tohle je hrozna hovadina
+        // Kdyz navazu spojeni a hned ho ukoncim, dochazelo k problemum s
+        // timeoutem uvnitr knihovny vmf
+        // Ta pitoma knihovna si chce hned po navazani spojeni vymenit nejake
+        // data, a kdyz mu to hned
+        // diskonektnu, tak se z toho nezpamatuje, tak to delam na suda/licha v jednom zapnu v druhem dotazu vypnu
         if (VMF.isVx600Connected()) {
             try {
                 Thread.sleep(100);
@@ -80,17 +86,18 @@ public class MonetBTAPI {
             }
             VMF.vmfDisconnectVx600();
             isConnected = true;
-        }
-
-        if (VMF.vmfConnectVx600(act, null, 1) == 0 && VMF.isVx600Connected()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+        } else {
+            if (VMF.vmfConnectVx600(act, null, 1) == 0
+                    && VMF.isVx600Connected()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                // VMF.vmfDisconnectVx600();
+                isConnected = true;
             }
-            // VMF.vmfDisconnectVx600();
-            isConnected = true;
         }
 
         Log.i(TAG, "Terminal VMF isConnected: " + isConnected);
