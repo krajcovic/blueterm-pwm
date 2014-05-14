@@ -58,6 +58,18 @@ public class MonetBTAPI {
 
     // The Handler that gets information back from the BluetoothChatService
     private static MessageThread messageThread = null;
+    
+    /**
+     * @param act
+     *          Current activity
+     * @return
+     *      true if a terminal is connected.
+     */
+    public static final Boolean isTerminalConnected(final Activity act) {
+        activity = act;
+        
+        return true;
+    }
 
     /**
      * @param activity
@@ -76,9 +88,7 @@ public class MonetBTAPI {
         if (create()) {
             if (start()) {
                 connectDevice(inputData.getBlueHwAddress(), false);
-                
-                
-
+            
                 // Pockej dokud neskonci spojovani
                 while (terminalService.getState() == TerminalState.STATE_CONNECTING) {
                     try {
@@ -101,8 +111,9 @@ public class MonetBTAPI {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
-                        Log.e(TAG, e.getMessage());
+                        Log.e(TAG, "MonetBTAPI wait loop exception.");
                     }
+
 
                 }
 
