@@ -36,7 +36,7 @@ public class MonetBTAPI {
     /**
      * Local Bluetooth adapter.
      */
-    // private static BluetoothAdapter bluetoothAdapter = null;
+    //private static BluetoothAdapter bluetoothAdapter = null;
 
     /**
      * Member object for the chat services.
@@ -70,6 +70,17 @@ public class MonetBTAPI {
             final Activity act) {
         activity = act;
         Boolean isConnected = false;
+        
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            Log.e(TAG, "Device does not support Bluetooth.");
+            return false;
+        }
+        
+        if(!mBluetoothAdapter.isEnabled()) {
+            Log.e(TAG, "Device has not enabled Bluetooth.");
+            return false;
+        }
 
         // Tak tohle je hrozna hovadina
         // Kdyz navazu spojeni a hned ho ukoncim, dochazelo k problemum s
@@ -105,7 +116,7 @@ public class MonetBTAPI {
         activity = act;
         inputData = in;
         outputData = new TransactionOut();
-
+        
         if (VMF.isVx600Connected()) {
             VMF.vmfDisconnectVx600();
         }
