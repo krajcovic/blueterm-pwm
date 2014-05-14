@@ -1,5 +1,7 @@
 package cz.monetplus.blueterm;
 
+import com.verifone.vmf.api.VMF;
+
 import cz.monetplus.blueterm.terminal.TerminalServiceBT;
 import cz.monetplus.blueterm.terminal.TerminalState;
 import android.app.Activity;
@@ -34,7 +36,7 @@ public class MonetBTAPI {
     /**
      * Local Bluetooth adapter.
      */
-    private static BluetoothAdapter bluetoothAdapter = null;
+    // private static BluetoothAdapter bluetoothAdapter = null;
 
     /**
      * Member object for the chat services.
@@ -58,17 +60,41 @@ public class MonetBTAPI {
 
     // The Handler that gets information back from the BluetoothChatService
     private static MessageThread messageThread = null;
-    
+
     /**
      * @param act
-     *          Current activity
-     * @return
-     *      true if a terminal is connected.
+     *            Current activity
+     * @return true if a terminal is connected.
      */
-    public static final Boolean isTerminalConnected(final Activity act) {
+    public static final synchronized Boolean isTerminalConnected(
+            final Activity act) {
         activity = act;
-        
-        return true;
+        Boolean isConnected = false;
+
+        if (VMF.isVx600Connected()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            VMF.vmfDisconnectVx600();
+            isConnected = true;
+        }
+
+        if (VMF.vmfConnectVx600(act, null, 1) == 0 && VMF.isVx600Connected()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            // VMF.vmfDisconnectVx600();
+            isConnected = true;
+        }
+
+        Log.i(TAG, "Terminal VMF isConnected: " + isConnected);
+        return isConnected;
     }
 
     /**
@@ -78,17 +104,27 @@ public class MonetBTAPI {
      *            Transcation input parameters.
      * @return true for corect connected device. false for some error.
      */
-    public static final TransactionOut doTransaction(final Activity act,
-            final TransactionIn in) {
+    public static final synchronized TransactionOut doTransaction(
+            final Activity act, final TransactionIn in) {
 
         activity = act;
         inputData = in;
         outputData = new TransactionOut();
 
+        if (VMF.isVx600Connected()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            VMF.vmfDisconnectVx600();
+        }
+
         if (create()) {
             if (start()) {
-                connectDevice(inputData.getBlueHwAddress(), false);
-            
+                connectDevice(/* inputData.getBlueHwAddress(), false */);
+
                 // Pockej dokud neskonci spojovani
                 while (terminalService.getState() == TerminalState.STATE_CONNECTING) {
                     try {
@@ -105,7 +141,7 @@ public class MonetBTAPI {
                             TerminalState.STATE_CONNECTED, in.getCommand()
                                     .ordinal());
                 }
-                
+
                 while (terminalService.getState() == TerminalState.STATE_CONNECTED) {
                     // Zacni vykonavat smycku
                     try {
@@ -114,18 +150,16 @@ public class MonetBTAPI {
                         Log.e(TAG, "MonetBTAPI wait loop exception.");
                     }
 
-
                 }
 
                 outputData = messageThread.getValue();
-            }
-            else {
-                Log.e(TAG,"crate failed");
+            } else {
+                Log.e(TAG, "crate failed");
             }
         } else {
-            Log.e(TAG,"start failed");
+            Log.e(TAG, "start failed");
         }
-        
+
         stop();
 
         return outputData;
@@ -140,7 +174,7 @@ public class MonetBTAPI {
         Log.i(TAG, "+++ ON CREATE +++");
 
         // Get local Bluetooth adapter
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        // bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // relate the listView from java to the one created in xml
         return true;
@@ -156,15 +190,15 @@ public class MonetBTAPI {
 
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-            outputData.setMessage("Bluetooth is not available");
-            // Otherwise, setup the chat session
-        } else {
-            if (terminalService == null) {
-                setupTerminal();
-                return true;
-            }
+        // if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+        // outputData.setMessage("Bluetooth is not available");
+        // // Otherwise, setup the chat session
+        // } else {
+        if (terminalService == null) {
+            setupTerminal();
+            return true;
         }
+        // }
 
         return false;
     }
@@ -197,6 +231,7 @@ public class MonetBTAPI {
             messageThread.start();
             Log.i(TAG, "messageThread starting");
 
+            // TODO predelat zivotni cyklus, aby se tady nemuselo cekat.
             while (messageThread.isAlive() == false) {
                 try {
                     Thread.sleep(1000);
@@ -219,7 +254,7 @@ public class MonetBTAPI {
      * @param secure
      *            True for secure connection, false for insecure.
      */
-    private static void connectDevice(String address, boolean secure) {
+    private static void connectDevice(/* String address, boolean secure */) {
         // Get the BLuetoothDevice object
         // BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
 

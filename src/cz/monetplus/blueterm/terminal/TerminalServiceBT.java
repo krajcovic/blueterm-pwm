@@ -191,8 +191,7 @@ public class TerminalServiceBT {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                // e.printStackTrace();
+                 e.printStackTrace();
             }
         }
 
@@ -221,32 +220,32 @@ public class TerminalServiceBT {
         mConnectedThread.start();
     }
 
-    public void join() {
-        Log.d(TAG, "join");
-
-        if (mConnectThread != null) {
-            try {
-                mConnectThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-
-        if (mConnectedThread != null) {
-            try {
-                mConnectedThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public void join() {
+//        Log.d(TAG, "join");
+//
+//        if (mConnectThread != null) {
+//            try {
+//                mConnectThread.join(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e1) {
+//            // TODO Auto-generated catch block
+//            e1.printStackTrace();
+//        }
+//
+//        if (mConnectedThread != null) {
+//            try {
+//                mConnectedThread.join(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     /**
      * Stop all threads.
@@ -265,12 +264,12 @@ public class TerminalServiceBT {
         if (mConnectThread != null) {
 
             // do {
-            try {
+//            try {
                 mConnectThread.interrupt();
-                mConnectThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//                mConnectThread.join(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
             // } while (mConnectThread.isAlive());
 
             mConnectThread = null;
@@ -279,12 +278,12 @@ public class TerminalServiceBT {
         if (mConnectedThread != null) {
 
             // do {
-            try {
+//            try {
                 mConnectedThread.interrupt();
-                mConnectedThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//                mConnectedThread.join(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
             // } while (mConnectedThread.isAlive());
             mConnectedThread = null;
         }
