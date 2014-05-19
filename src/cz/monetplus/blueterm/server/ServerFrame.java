@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import android.util.Log;
+import cz.monetplus.blueterm.terminal.TerminalCommands;
 
 /**
  * Frame of server communication.
@@ -21,7 +22,7 @@ public class ServerFrame {
     /**
      * Command in server communication.
      */
-    private byte command;
+    private TerminalCommands command;
 
     /**
      * Session id.
@@ -43,7 +44,7 @@ public class ServerFrame {
      * @param data
      *            Data.
      */
-    public ServerFrame(byte command, byte[] id, byte[] data) {
+    public ServerFrame(TerminalCommands command, byte[] id, byte[] data) {
         super();
         this.command = command;
         this.id = id;
@@ -60,7 +61,7 @@ public class ServerFrame {
      * @param data
      *            Data.
      */
-    public ServerFrame(byte command, int id, byte[] data) {
+    public ServerFrame(TerminalCommands command, int id, byte[] data) {
         super();
         this.command = command;
         this.id[1] = (byte) (id & 0xff);
@@ -72,11 +73,11 @@ public class ServerFrame {
         parseFrame(buffer);
     }
 
-    public byte getCommand() {
+    public TerminalCommands getCommand() {
         return command;
     }
 
-    public void setCommand(byte command) {
+    public final void setCommand(TerminalCommands command) {
         this.command = command;
     }
 
@@ -106,7 +107,7 @@ public class ServerFrame {
 
     public void parseFrame(byte[] buffer) {
         if (buffer != null) {
-            command = buffer[0];
+            command = TerminalCommands.valueOf(buffer[0]);
             id[0] = buffer[1];
             id[1] = buffer[2];
             data = Arrays.copyOfRange(buffer, 3, buffer.length);
@@ -117,7 +118,7 @@ public class ServerFrame {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         try {
-            stream.write(this.getCommand());
+            stream.write(this.getCommand().getCommandCode());
             stream.write(this.getId());
             if (this.getData() != null) {
                 stream.write(this.getData());

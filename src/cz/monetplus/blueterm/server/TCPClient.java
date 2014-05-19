@@ -14,7 +14,7 @@ import cz.monetplus.blueterm.util.MonetUtils;
 import android.util.Log;
 
 /**
- * Class executing communication with server
+ * Class executing communication with server.
  * 
  * @author "Dusan Krajcovic"
  * 

@@ -51,7 +51,6 @@ public class ByPassTCPServerThread extends TerminalsThread {
 
                 while (!Thread.currentThread().isInterrupted()
                         && commThread != null && !commThread.isInterrupted()) {
-                    // TODO: treba kontrolovat ze je tcp server v poradku.
                     try {
                         sleep(MonetUtils.THREAD_RUN_SLEEP);
                     } catch (InterruptedException e) {

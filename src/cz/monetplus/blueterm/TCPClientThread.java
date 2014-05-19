@@ -26,7 +26,7 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
 
     private int timeout;
 
-    private MessageThread mHandler;
+    private final MessageThread mHandler;
 
     /**
      * TCP client.
@@ -44,7 +44,7 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
      * @param serverPort
      *            Server port.
      * @param timeout
-     *            TODO: dodelat timeout.
+     *            Timeout pro spojeni.
      * @param connectionId
      *            current connection ID.
      */
@@ -68,6 +68,7 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
      * @param sendData
      *            Buffer for sending data to server.
      */
+    @Override
     public void sendMessage(byte[] sendData) {
         if (mTcpClient != null) {
             try {
@@ -96,8 +97,8 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
                                         connectionId, message).createFrame());
 
                         // send to terminal
-                        mHandler.addMessage(
-                                HandleMessages.MESSAGE_TERM_WRITE, -1, -1,
+                        mHandler.addMessage(HandleMessages.MESSAGE_TERM_WRITE,
+                                -1, -1,
                                 SLIPFrame.createFrame(termFrame.createFrame()));
                     }
                 });
@@ -105,8 +106,9 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
         mTcpClient.run();
     }
 
+    @Override
     public void interrupt() {
-        
+
         mHandler.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
                 "Disconecting from server.");
 

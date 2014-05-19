@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 /**
  * @author "Dusan Krajcovic"
- * 
  */
 public class BProtocol implements Serializable {
 
@@ -55,9 +54,9 @@ public class BProtocol implements Serializable {
     private HashMap<BProtocolTag, String> tagMap = new HashMap<BProtocolTag, String>();
 
     /**
-     * 
+     * Default constructor.
      */
-    BProtocol() {
+    public BProtocol() {
         super();
     }
 

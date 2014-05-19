@@ -19,7 +19,7 @@ import android.util.Log;
 public class MonetBTAPI {
 
     /**
-     * Socket port
+     * Socket port.
      */
     private static final int TERMINALPORT = 33333;
 
@@ -27,16 +27,6 @@ public class MonetBTAPI {
      * String tag for logging.
      */
     private static final String TAG = "MonetBTAPI";
-
-    /**
-     * 
-     */
-    // public static final String TOAST = "Messagebox";
-
-    /**
-     * Local Bluetooth adapter.
-     */
-    //private static BluetoothAdapter bluetoothAdapter = null;
 
     /**
      * Member object for the chat services.
@@ -58,26 +48,29 @@ public class MonetBTAPI {
      */
     private static TransactionOut outputData = null;
 
-    // The Handler that gets information back from the BluetoothChatService
+    /**
+     * The Handler that gets information back from the BluetoothChatService.
+     */
     private static MessageThread messageThread = null;
 
     /**
      * @param act
-     *            Current activity
+     *            Current activity.
      * @return true if a terminal is connected.
      */
     public static final synchronized Boolean isTerminalConnected(
             final Activity act) {
         activity = act;
         Boolean isConnected = false;
-        
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
+                .getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             Log.e(TAG, "Device does not support Bluetooth.");
             return false;
         }
-        
-        if(!mBluetoothAdapter.isEnabled()) {
+
+        if (!mBluetoothAdapter.isEnabled()) {
             Log.e(TAG, "Device has not enabled Bluetooth.");
             return false;
         }
@@ -104,19 +97,19 @@ public class MonetBTAPI {
     }
 
     /**
-     * @param activity
+     * @param currentActivity
      *            Current activity.
      * @param in
      *            Transcation input parameters.
      * @return true for corect connected device. false for some error.
      */
     public static final synchronized TransactionOut doTransaction(
-            final Activity act, final TransactionIn in) {
+            final Activity currentActivity, final TransactionIn in) {
 
-        activity = act;
+        activity = currentActivity;
         inputData = in;
         outputData = new TransactionOut();
-        
+
         if (VMF.isVx600Connected()) {
             VMF.vmfDisconnectVx600();
         }
@@ -125,7 +118,8 @@ public class MonetBTAPI {
             if (start()) {
                 connectDevice();
 
-                // TODO: Tohle predelat na threadMessage zpusob, nekdy v budoucnu :)
+                // TODO: Tohle predelat na threadMessage zpusob, nekdy v
+                // budoucnu :)
                 // Pockej dokud neskonci spojovani
                 while (terminalService.getState() == TerminalState.STATE_CONNECTING) {
                     try {
@@ -185,8 +179,7 @@ public class MonetBTAPI {
     private static Boolean start() {
         Log.i(TAG, "++ ON START ++");
 
-        
-        // Bluetooth zapina aplikace. 
+        // Bluetooth zapina aplikace.
         if (terminalService == null) {
             setupTerminal();
             return true;
@@ -224,12 +217,11 @@ public class MonetBTAPI {
             Log.i(TAG, "messageThread starting");
 
             // TODO predelat zivotni cyklus, aby se tady nemuselo cekat.
-            while (messageThread.isAlive() == false) {
+            while (!messageThread.isAlive()) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    // // TODO Auto-generated catch block
-                    // e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
             Log.i(TAG, "Waiting for messageThread isAlive");

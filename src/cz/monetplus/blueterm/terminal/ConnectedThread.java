@@ -117,11 +117,8 @@ public class ConnectedThread extends TerminalsThread {
         }
     }
 
-    /**
-     * Write to the connected OutStream.
-     * 
-     * @param buffer
-     *            The bytes to write
+    /* (non-Javadoc)
+     * @see cz.monetplus.blueterm.terminal.ITerminalsThread#write(byte[])
      */
     @Override
     public void write(byte[] buffer) throws IOException {

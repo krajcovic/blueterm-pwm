@@ -4,7 +4,7 @@ import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
 import cz.monetplus.blueterm.TransactionCommand;
 
-abstract public class TerminalsThread extends Thread implements
+public abstract class TerminalsThread extends Thread implements
         ITerminalsThread {
 
     private static final String TAG = "TerminalsThread";
@@ -34,7 +34,7 @@ abstract public class TerminalsThread extends Thread implements
     /**
      * Set the current state of the chat connection.
      * 
-     * @param state
+     * @param newState
      *            An integer defining the current connection state.
      */
     @Override

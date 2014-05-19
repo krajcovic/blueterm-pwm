@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import android.util.Log;
-
 import cz.monetplus.blueterm.util.MonetUtils;
 
 public class BProtocolFactory {
@@ -117,12 +116,12 @@ public class BProtocolFactory {
      * Vyparsovani stringu s fixni delkou z bufferu.
      * 
      * @param buffer
-     *            buffer s daty
+     *            buffer s daty.
      * @param pos
-     *            pozice pocatku stringu
+     *            pozice pocatku stringu.
      * @param size
-     *            velikost vycitaneho stringu
-     * @return z bufferu vycteny string
+     *            velikost vycitaneho stringu.
+     * @return z bufferu vycteny string.
      */
     @SuppressWarnings("unused")
     private static String getFixedTrimedString(byte[] buffer, int pos, int size) {

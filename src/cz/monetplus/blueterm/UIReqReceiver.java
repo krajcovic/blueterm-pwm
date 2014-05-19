@@ -9,7 +9,7 @@ import com.verifone.vmf.api.VMF;
 import com.verifone.vmf.api.VMF.UIReqListener;
 
 public class UIReqReceiver implements UIReqListener {
-    
+
     private Context context;
 
     public UIReqReceiver(Context context) {
@@ -24,27 +24,10 @@ public class UIReqReceiver implements UIReqListener {
 
     @Override
     public void onReceive(byte[] uiReqData) {
-        if (uiReqData[0] == 0x3C &&
-                uiReqData[1] == 0x21 &&
-                uiReqData[2] == 0x44)
-            {
-//              Intent intent = new Intent((Activity)context, WebViewDialogActivity.class);
-//
-//              if (uiReqData != null)
-//              {
-//                intent.putExtra("data", new String(uiReqData));
-//              }
+        Log.i(TAG, "No HTML data received -> send back to sender");
 
-//              context.startActivity(intent);
-            }
-            else
-            {
-              Log.i(TAG, "No HTML data received -> send back to sender");
-
-              // Mirror the data back to the Vx600
-              VMF.sendUIResponseData(uiReqData);
-            }
-
+        // Mirror the data back to the Vx600
+        VMF.sendUIResponseData(uiReqData);
     }
 
 }

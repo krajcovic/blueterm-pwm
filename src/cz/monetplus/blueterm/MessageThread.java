@@ -7,8 +7,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import android.app.Activity;
-//import android.R.bool;
-import android.content.Context;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
@@ -24,6 +22,8 @@ import cz.monetplus.blueterm.terminal.TerminalPorts;
 import cz.monetplus.blueterm.terminal.TerminalServiceBT;
 import cz.monetplus.blueterm.terminal.TerminalState;
 import cz.monetplus.blueterm.util.MonetUtils;
+
+//import android.R.bool;
 
 /**
  * Thread for handling all messages.
@@ -51,22 +51,22 @@ public class MessageThread extends Thread {
     /**
      * Message queue for handling messages from threads.
      */
-    private Queue<Message> queue = new LinkedList<Message>();
+    private final Queue<Message> queue = new LinkedList<Message>();
 
     /**
      * Application context.
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * Terminal port (example 33333).
      */
-    private int terminalPort;
+    private final int terminalPort;
 
     /**
      * Transaction input params.
      */
-    private TransactionIn transactionInputData;
+    private final TransactionIn transactionInputData;
 
     /**
      * Transaction output params.
@@ -88,12 +88,18 @@ public class MessageThread extends Thread {
      */
     private static ByteArrayOutputStream slipOutputpFraming = null;
 
+    /**
+     * 
+     */
     private int currentTerminalState;
 
     /**
-     * @param context
+     * @param activity
+     *            Current activity.
      * @param terminalPort
+     *            Terminal socket port.
      * @param transactionInputData
+     *            Transaction input data.
      */
     public MessageThread(final Activity activity, int terminalPort,
             TransactionIn transactionInputData) {
@@ -172,8 +178,8 @@ public class MessageThread extends Thread {
      *            Data for executing messages.
      */
 
-    public void addMessage(int what, int terminalState, int transactionCommand,
-            Object obj) {
+    public final void addMessage(int what, int terminalState,
+            int transactionCommand, Object obj) {
         addMessage(Message.obtain(null, what, terminalState,
                 transactionCommand, obj));
     }
@@ -256,6 +262,7 @@ public class MessageThread extends Thread {
             if (msg != null && msg.obj != null) {
                 Log.i(TAG, msg.obj.toString());
                 activity.runOnUiThread(new Runnable() {
+                    @Override
                     public void run() {
                         Toast.makeText(activity, msg.obj.toString(),
                                 Toast.LENGTH_LONG).show();
@@ -275,6 +282,7 @@ public class MessageThread extends Thread {
      * @param message
      *            A string of text to send.
      * @throws IOException
+     *             Input output exception by write to terminal.
      */
     private void write2Terminal(byte[] message) throws IOException {
         // Check that we're actually connected before trying anything
@@ -301,8 +309,8 @@ public class MessageThread extends Thread {
         byte[] status = new byte[1];
         status[0] = (byte) msg.arg1;
         ServerFrame soFrame = new ServerFrame(
-                TerminalCommands.TERM_CMD_SERVER_CONNECTED, serverConnectionID,
-                status);
+                TerminalCommands.TERM_CMD_SERVER_CONNECTED,
+                serverConnectionID, status);
         TerminalFrame toFrame = new TerminalFrame(
                 TerminalPorts.SERVER.getPortNumber(), soFrame.createFrame());
 
@@ -311,7 +319,7 @@ public class MessageThread extends Thread {
     }
 
     /**
-     * Received message from terminal
+     * Received message from terminal.
      * 
      * @param msg
      *            Messaget contains information read from terminal.
@@ -353,7 +361,7 @@ public class MessageThread extends Thread {
                         this.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
                                 message);
                     }
-                    
+
                     if (bprotocol.getProtocolType().equals("B2")) {
                         executeB2(bprotocol);
                     }
@@ -459,11 +467,12 @@ public class MessageThread extends Thread {
 
         Log.d(TAG, "Server command: " + serverFrame.getCommand());
         switch (serverFrame.getCommand()) {
-        case TerminalCommands.TERM_CMD_ECHO:
+
+        case TERM_CMD_ECHO:
             echoResponse(termFrame, serverFrame);
             break;
 
-        case TerminalCommands.TERM_CMD_CONNECT:
+        case TERM_CMD_CONNECT:
             this.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
                     "Connecting to server...");
             serverConnectionID = serverFrame.getId();
@@ -484,7 +493,7 @@ public class MessageThread extends Thread {
 
             TerminalFrame responseTerminal = new TerminalFrame(termFrame
                     .getPort().getPortNumber(), new ServerFrame(
-                    (byte) TerminalCommands.TERM_CMD_CONNECT_RES,
+                    TerminalCommands.TERM_CMD_CONNECT_RES,
                     serverFrame.getId(), new byte[1]).createFrame());
 
             this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1,
@@ -492,16 +501,18 @@ public class MessageThread extends Thread {
 
             break;
 
-        case TerminalCommands.TERM_CMD_DISCONNECT:
+        case TERM_CMD_DISCONNECT:
             if (tcpThread != null) {
                 tcpThread.interrupt();
                 tcpThread = null;
             }
             break;
 
-        case TerminalCommands.TERM_CMD_SERVER_WRITE:
+        case TERM_CMD_SERVER_WRITE:
             // Send data to server.
             tcpThread.sendMessage(serverFrame.getData());
+        default:
+            break;
         }
 
     }
@@ -518,8 +529,8 @@ public class MessageThread extends Thread {
             final ServerFrame serverFrame) {
         TerminalFrame responseTerminal = new TerminalFrame(termFrame.getPort()
                 .getPortNumber(),
-                new ServerFrame(TerminalCommands.TERM_CMD_ECHO_RES, serverFrame
-                        .getId(), null).createFrame());
+                new ServerFrame(TerminalCommands.TERM_CMD_ECHO_RES,
+                        serverFrame.getId(), null).createFrame());
 
         this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1,
                 SLIPFrame.createFrame(responseTerminal.createFrame()));

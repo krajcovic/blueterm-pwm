@@ -2,24 +2,16 @@ package cz.monetplus.blueterm.bprotocol;
 
 /**
  * @author "Dusan Krajcovic"
- *
- */
-/**
- * @author "Dusan Krajcovic"
- *
- */
-/**
- * @author "Dusan Krajcovic"
  * 
  */
 public enum BProtocolTag {
     /**
-     * 
+     * Amount 1.
      */
     Amount1('B'),
 
     /**
-     * 
+     * Amount 2.
      */
     Amount2('C'),
 
@@ -67,32 +59,32 @@ public enum BProtocolTag {
     TransactionType('T'),
 
     /**
-     * 
+     * Sequence id.
      */
     SequenceId('i'),
 
     /**
-     * 
+     * Server message.
      */
     ServerMessage('g'),
 
     /**
-     * 
+     * Totals batch 1.
      */
     TotalsBatch1('l'),
 
     /**
-     * 
+     * Totals batch 2.
      */
     TotalsBatch2('m'),
 
     /**
-     * 
+     * Customer fid.
      */
     CustomerFid('9'),
 
     /**
-     * 
+     * Card type.
      */
     CardType('J');
 

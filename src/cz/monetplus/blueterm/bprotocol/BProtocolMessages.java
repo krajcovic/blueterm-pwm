@@ -40,7 +40,7 @@ public final class BProtocolMessages {
 
         return factory.serialize(bprotocol);
     }
-    
+
     public static byte[] getReturn(int amount, int currencyCode,
             String invoiceNumber) {
 
@@ -57,7 +57,7 @@ public final class BProtocolMessages {
 
         return factory.serialize(bprotocol);
     }
-    
+
     public static byte[] getReversal(int amount, int currencyCode,
             String invoiceNumber) {
 
