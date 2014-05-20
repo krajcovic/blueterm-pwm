@@ -44,20 +44,21 @@ public enum TerminalCommands {
      */
     TERM_CMD_CONNECT_RES(0x81);
 
-    private final Integer commandCode;
+    private final Integer code;
 
     private TerminalCommands(Integer commandCode) {
-        this.commandCode = commandCode;
+        this.code = commandCode;
     }
 
     public Integer getCommandCode() {
-        return commandCode;
+        return code;
     }
 
     public static TerminalCommands valueOf(byte b) {
         for (TerminalCommands c : values()) {
-            if (c.ordinal() == b)
+            if (c.ordinal() == b) {
                 return c;
+            }
         }
         return null;
     }

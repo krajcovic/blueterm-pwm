@@ -7,11 +7,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import android.util.Log;
 import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
 import cz.monetplus.blueterm.util.MonetUtils;
-
-import android.util.Log;
 
 /**
  * Class executing communication with server.
@@ -31,12 +30,12 @@ public class TCPClient {
     /**
      * Server IP address.
      */
-    private byte[] serverIp;
+    private final byte[] serverIp;
 
     /**
      * Server port.
      */
-    private int serverPort;
+    private final int serverPort;
 
     /**
      * Listener for received messages.
@@ -46,7 +45,7 @@ public class TCPClient {
     /**
      * Message handler.
      */
-    private MessageThread mHandler;
+    private final MessageThread mHandler;
 
     private boolean isRunning = false;
 
@@ -54,7 +53,7 @@ public class TCPClient {
 
     private InputStream in;
 
-    private int timeout;
+    private final int timeout;
 
     /**
      * Constructor of the class. OnMessagedReceived listens for the messages
@@ -80,24 +79,25 @@ public class TCPClient {
         mMessageListener = listener;
     }
 
-    public void sendMessage(byte[] message) throws IOException {
+    /**
+     * @param message
+     *            Byte buffer with data to send to stream.
+     * @throws IOException
+     *             Socket exception.
+     */
+    public final void sendMessage(byte[] message) throws IOException {
         if (out != null) {
+            Log.d(TAG, MonetUtils.bytesToHex(message));
             out.write(message);
             out.flush();
-            
-            // Log.d(TAG, new String(message, "UTF-8"));
-            Log.d(TAG, MonetUtils.bytesToHex(message));
-
-//            mHandler.addMessage(HandleMessages.MESSAGE_SERVER_WRITE, -1, -1,
-//                    message);
         }
     }
 
-    public void stopClient() {
+    public final void stopClient() {
         isRunning = false;
     }
 
-    public void run() {
+    public final void run() {
 
         isRunning = true;
 
@@ -110,30 +110,20 @@ public class TCPClient {
             Log.e("TCP Client", "C: Connecting...");
 
             // create a socket to make the connection with the server
-            // Socket socket = new Socket(serverAddr, this.serverPort);
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(serverAddr, this.serverPort),
                     timeout);
 
-            // SSLSocket socket = new SSLSocket(serverAddr, this.serverPort);
-
             try {
 
-                // send the message to the server
-                // out = new PrintWriter(new BufferedWriter(
-                // new OutputStreamWriter(socket.getOutputStream())), true);
                 out = socket.getOutputStream();
 
                 Log.d(TAG, "TCP read starting");
 
-                // receive the message which the server sends back
-                // in = new BufferedReader(new InputStreamReader(
-                // socket.getInputStream()));
                 in = socket.getInputStream();
 
-                mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 0, -1,
-                        null);
-                mHandler.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
+                mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED);
+                mHandler.addMessage(HandleMessages.MESSAGE_TOAST,
                         "Connected to server.");
 
                 // in this while the client listens for the messages sent by the
@@ -165,8 +155,10 @@ public class TCPClient {
                 Log.e("TCP", "S: Error", e);
                 if (isRunning) {
                     // Uz koncime, takze nic nikam neposilej
-                    mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 2,
-                            -1, null);
+                    // TODO: tady mam snad sakra volat QUIT!!! zkontrolovat
+                    // mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 1,
+                    // -1, null);
+                    mHandler.addMessage(HandleMessages.MESSAGE_QUIT);
                 }
 
             } finally {
@@ -180,8 +172,10 @@ public class TCPClient {
         } catch (Exception e) {
 
             Log.e("TCP", "C: Error", e);
-            mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 1, -1,
-                    null);
+            // TODO: tady mam snad sakra volat QUIT!!! zkontrolovat
+            // mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 1, -1,
+            // null);
+            mHandler.addMessage(HandleMessages.MESSAGE_QUIT);
 
         }
 
@@ -194,7 +188,7 @@ public class TCPClient {
         public void messageReceived(byte[] message);
     }
 
-    public boolean isConnected() {
+    public final boolean isConnected() {
         return isRunning;
     }
 }

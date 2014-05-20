@@ -74,7 +74,8 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
             try {
                 mTcpClient.sendMessage(sendData);
             } catch (IOException e) {
-                Log.d(TAG, e.getMessage());
+                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
         }
     }
@@ -98,7 +99,6 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
 
                         // send to terminal
                         mHandler.addMessage(HandleMessages.MESSAGE_TERM_WRITE,
-                                -1, -1,
                                 SLIPFrame.createFrame(termFrame.createFrame()));
                     }
                 });
@@ -109,7 +109,7 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
     @Override
     public void interrupt() {
 
-        mHandler.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
+        mHandler.addMessage(HandleMessages.MESSAGE_TOAST,
                 "Disconecting from server.");
 
         if (mTcpClient != null) {

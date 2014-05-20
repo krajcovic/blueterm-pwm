@@ -16,39 +16,12 @@
 
 package cz.monetplus.blueterm.terminal;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.UUID;
-
-import com.verifone.vmf.api.VMF;
-import com.verifone.vmf.api.VMF.AppLinkListener;
-import com.verifone.vmf.api.VMF.PrinterDataListener;
-
-import cz.monetplus.blueterm.BTPrinterListener;
-import cz.monetplus.blueterm.HandleMessages;
-import cz.monetplus.blueterm.MessageThread;
-import cz.monetplus.blueterm.SlipInputReader;
-import cz.monetplus.blueterm.Vx600ConnectionListener;
-import cz.monetplus.blueterm.util.MonetUtils;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
+import cz.monetplus.blueterm.HandleMessages;
+import cz.monetplus.blueterm.MessageThread;
 
 /**
  * This class does all the work for setting up and managing Bluetooth
@@ -69,7 +42,7 @@ public class TerminalServiceBT {
     // private static final UUID MY_UUID_INSECURE = UUID
     // .fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    private Activity activity;
+    private final Activity activity;
 
     private MessageThread messageThread;
 
@@ -97,21 +70,21 @@ public class TerminalServiceBT {
      * @param state
      *            An integer defining the current connection state.
      */
-    private synchronized void setState(int state) {
+    private synchronized void setState(TerminalState state) {
         // Log.d(TAG, "setState() " + currentTerminalState + " -> " + state);
         // currentTerminalState = state;
 
         // Give the new state to the Handler so the UI Activity can update
         if (messageThread != null) {
-            messageThread.addMessage(HandleMessages.MESSAGE_STATE_CHANGE,
-                    state, -1);
+            messageThread
+                    .addMessage(HandleMessages.MESSAGE_STATE_CHANGE, state);
         }
     }
 
     /**
      * @return Return the current connection state.
      */
-    public synchronized int getState() {
+    public final synchronized TerminalState getState() {
         if (messageThread != null) {
             return messageThread.getCurrentTerminalState();
         }
@@ -123,7 +96,7 @@ public class TerminalServiceBT {
      * Start the chat service. Specifically start AcceptThread to begin a
      * session in listening (server) mode. Called by the Activity onResume()
      */
-    public synchronized void start() {
+    public final synchronized void start() {
         Log.d(TAG, "start");
 
         interrupt();
@@ -134,23 +107,12 @@ public class TerminalServiceBT {
     /**
      * Start the ConnectThread to initiate a connection to a remote device.
      * 
-     * @param device
-     *            The BluetoothDevice to connect
-     * @param secure
-     *            Socket Security type - Secure (true) , Insecure (false)
      */
-    public synchronized void connect(/* BluetoothDevice device, Boolean secure */) {
-        // Log.d(TAG, "connect to: " + device);
-
+    public final synchronized void connect() {
         // Cancel any thread attempting to make a connection
         if (messageThread.getCurrentTerminalState() == TerminalState.STATE_CONNECTING) {
             if (mConnectThread != null) {
                 mConnectThread.interrupt();
-                try {
-                    mConnectedThread.join(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 mConnectThread = null;
             }
         }
@@ -158,11 +120,6 @@ public class TerminalServiceBT {
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {
             mConnectedThread.interrupt();
-            try {
-                mConnectedThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             mConnectedThread = null;
         }
 
@@ -185,14 +142,10 @@ public class TerminalServiceBT {
     /**
      * Start the ConnectedThread to begin managing a Bluetooth connection.
      * 
-     * @param socket
-     *            The BluetoothSocket on which the connection was made.
-     * @param device
-     *            The BluetoothDevice that has been connected.
      * @throws Exception
-     *             Exception by creating new thread. 
+     *             Exception by creating new thread.
      */
-    public synchronized void connected() throws Exception {
+    public final synchronized void connected() throws Exception {
         Log.d(TAG, "connected");
 
         // Start the thread to manage the connection and perform transmissions
@@ -200,37 +153,10 @@ public class TerminalServiceBT {
         mConnectedThread.start();
     }
 
-    // public void join() {
-    // Log.d(TAG, "join");
-    //
-    // if (mConnectThread != null) {
-    // try {
-    // mConnectThread.join(1000);
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // }
-    //
-    // try {
-    // Thread.sleep(1000);
-    // } catch (InterruptedException e1) {
-    // // TODO Auto-generated catch block
-    // e1.printStackTrace();
-    // }
-    //
-    // if (mConnectedThread != null) {
-    // try {
-    // mConnectedThread.join(1000);
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // }
-    // }
-
     /**
      * Stop all threads.
      */
-    public synchronized void stop() {
+    public final synchronized void stop() {
         Log.d(TAG, "stop");
 
         // Kdyz zastavuju, tak uz nic nikam neposilej.
@@ -275,10 +201,10 @@ public class TerminalServiceBT {
      * @param out
      *            The bytes to write
      * @throws IOException
-     *              Input output exception by write to thread.
+     *             Input output exception by write to thread.
      * @see ConnectedThread#write(byte[])
      */
-    public void write(byte[] out) throws IOException {
+    public final void write(byte[] out) throws IOException {
         // Create temporary object
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
@@ -303,7 +229,8 @@ public class TerminalServiceBT {
             interrupt();
         }
 
-        public void run() {
+        @Override
+        public final void run() {
             Log.i(TAG, "BEGIN mConnectThread:");
             setName("ConnectThread");
 
@@ -316,11 +243,13 @@ public class TerminalServiceBT {
             try {
                 connected();
             } catch (Exception e) {
-                Log.e(TAG, "Connection error: " + e.getMessage());
+                // Log.e(TAG, "Connection error: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 
-        public void interrupt() {
+        @Override
+        public final void interrupt() {
             super.interrupt();
         }
     }

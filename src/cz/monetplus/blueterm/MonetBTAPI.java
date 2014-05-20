@@ -1,14 +1,13 @@
 package cz.monetplus.blueterm;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.util.Log;
+
 import com.verifone.vmf.api.VMF;
 
 import cz.monetplus.blueterm.terminal.TerminalServiceBT;
 import cz.monetplus.blueterm.terminal.TerminalState;
-import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.util.Log;
 
 /**
  * Exported class for control from pos-system.
@@ -108,7 +107,7 @@ public class MonetBTAPI {
 
         activity = currentActivity;
         inputData = in;
-        outputData = new TransactionOut();
+        outputData = new TransactionOutVx600();
 
         if (VMF.isVx600Connected()) {
             VMF.vmfDisconnectVx600();
@@ -133,8 +132,7 @@ public class MonetBTAPI {
 
                     messageThread.addMessage(
                             HandleMessages.MESSAGE_STATE_CHANGE,
-                            TerminalState.STATE_CONNECTED, in.getCommand()
-                                    .ordinal());
+                            TerminalState.STATE_CONNECTED, in.getCommand());
                 }
 
                 while (terminalService.getState() == TerminalState.STATE_CONNECTED) {
@@ -147,7 +145,9 @@ public class MonetBTAPI {
 
                 }
 
-                outputData = messageThread.getValue();
+                if (messageThread != null) {
+                    outputData = messageThread.getValue();
+                }
             } else {
                 Log.e(TAG, "crate failed");
             }
@@ -158,6 +158,10 @@ public class MonetBTAPI {
         stop();
 
         return outputData;
+    }
+
+    public static final void doCancel() {
+        stop();
     }
 
     /**

@@ -1,71 +1,29 @@
 package cz.monetplus.blueterm;
 
-import java.util.Currency;
+public interface TransactionIn {
 
-public class TransactionIn {
-    private String blueHwAddress;
-    private String hostIP;
-    private int hostPort;
-    
-    private TransactionCommand command;
+    public abstract Integer getAmount();
 
-    private Integer amount;
-    private String invoice;
-    private Integer currency;
+    public abstract void setAmount(Integer amount);
 
-    public Integer getAmount() {
-        return amount;
-    }
+    public abstract String getInvoice();
 
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
+    public abstract void setInvoice(String invoice);
 
-    public String getInvoice() {
-        return invoice;
-    }
+    public abstract Integer getCurrency();
 
-    public void setInvoice(String invoice) {
-        this.invoice = invoice;
-    }
+    public abstract void setCurrency(Integer currency);
 
-    public Integer getCurrency() {
-        return currency;
-    }
+    public abstract TransactionCommand getCommand();
 
-    public void setCurrency(Integer currency) {
-        this.currency = currency;
-    }
+    public abstract void setCommand(TransactionCommand command);
 
-    public String getBlueHwAddress() {
-        return blueHwAddress;
-    }
+    public abstract String getHostIP();
 
-    public void setBlueHwAddress(String blueHwAddress) {
-        this.blueHwAddress = blueHwAddress;
-    }
+    public abstract void setHostIP(String hostIP);
 
-    public TransactionCommand getCommand() {
-        return command;
-    }
+    public abstract int getHostPort();
 
-    public void setCommand(TransactionCommand command) {
-        this.command = command;
-    }
+    public abstract void setHostPort(int hostPort);
 
-    public String getHostIP() {
-        return hostIP;
-    }
-
-    public void setHostIP(String hostIP) {
-        this.hostIP = hostIP;
-    }
-
-    public int getHostPort() {
-        return hostPort;
-    }
-
-    public void setHostPort(int hostPort) {
-        this.hostPort = hostPort;
-    }
 }

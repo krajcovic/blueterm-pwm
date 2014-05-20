@@ -103,10 +103,18 @@ public enum BProtocolTag {
         this.tag = tag;
     }
 
+    /**
+     * @return Character tag.
+     */
     public Character getTag() {
         return tag;
     }
 
+    /**
+     * @param tag
+     *            Character tag.
+     * @return Enum Bprotocol.
+     */
     public static BProtocolTag tagOf(Character tag) {
         for (BProtocolTag e : BProtocolTag.class.getEnumConstants()) {
             if (e.getTag().equals(tag)) {

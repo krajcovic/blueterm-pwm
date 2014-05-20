@@ -4,11 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import android.util.Log;
 import cz.monetplus.blueterm.terminal.TerminalPorts;
 import cz.monetplus.blueterm.util.CRCFCS;
 import cz.monetplus.blueterm.util.MonetUtils;
-
-import android.util.Log;
 
 /**
  * Frames for terminal communication.
@@ -58,19 +57,19 @@ public class TerminalFrame {
         return port;
     }
 
-    public void setPort(int port) {
+    public final void setPort(int port) {
         this.port = TerminalPorts.valueOf(port & 0xFFFF);
     }
 
-    public byte[] getData() {
+    public final byte[] getData() {
         return data;
     }
 
-    public void setData(byte[] data) {
+    public final void setData(byte[] data) {
         this.data = data;
     }
 
-    public int getCrc() {
+    public final int getCrc() {
         return crc;
     }
 
@@ -92,15 +91,18 @@ public class TerminalFrame {
         return stream.toByteArray();
     }
 
-    public byte[] createFrame() {
+    public final byte[] createFrame() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         try {
-            // stream.write(ByteBuffer.allocate(2).putInt(this.getPort()).array());
+            // port number
             stream.write(MonetUtils.getHigh(this.getPort().getPortNumber()));
             stream.write(MonetUtils.getLow(this.getPort().getPortNumber()));
+
+            // data
             stream.write(this.getData());
-            // stream.write(ByteBuffer.allocate(2).putInt(this.getCrc()).array());
+
+            // crc
             stream.write((byte) this.getCrc() & 0xFF);
             stream.write((byte) (this.getCrc() >> 8) & 0xFF);
         } catch (IOException e) {
@@ -110,7 +112,7 @@ public class TerminalFrame {
         return stream.toByteArray();
     }
 
-    public void parseFrame(byte[] data) {
+    public final void parseFrame(byte[] data) {
         if (data != null && data.length > 4) {
 
             int d = data[data.length - 1] & 0xFF;

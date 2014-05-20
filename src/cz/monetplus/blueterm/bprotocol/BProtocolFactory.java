@@ -12,16 +12,39 @@ import java.util.Map.Entry;
 import android.util.Log;
 import cz.monetplus.blueterm.util.MonetUtils;
 
+/**
+ * @author "Dusan Krajcovic dusan.krajcovic [at] monetplus.cz"
+ * 
+ */
 public class BProtocolFactory {
+    /**
+     * 
+     */
     private static final byte STX = 0x02;
 
+    /**
+     * 
+     */
     private static final byte ETX = 0x03;
 
+    /**
+     * 
+     */
     private static final byte FS = 0x1c;
 
+    /**
+     * 
+     */
     private static final String TAG = "BProtocolFactory";
 
-    public byte[] serialize(BProtocol bprotocol) {
+    /**
+     * Serialize bprotocol.
+     * 
+     * @param bprotocol
+     *            Taged bprotocol.
+     * @return Byte array with data.
+     */
+    public final byte[] serialize(BProtocol bprotocol) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
         try {
@@ -51,7 +74,13 @@ public class BProtocolFactory {
         return bout.toByteArray();
     }
 
-    public BProtocol deserialize(byte[] buffer) {
+    /**
+     * @param buffer
+     *            Byte array with data.
+     * 
+     * @return BProtocol parsed.
+     */
+    public final BProtocol deserialize(byte[] buffer) {
 
         BProtocol bprotocol = new BProtocol();
 
@@ -92,6 +121,13 @@ public class BProtocolFactory {
         return bprotocol;
     }
 
+    /**
+     * Create byte buffer form tag map.
+     * 
+     * @param tagMap
+     *            The tag map contains bprotocol with values.
+     * @return Byte array.
+     */
     private byte[] compileTags(HashMap<BProtocolTag, String> tagMap) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
@@ -128,6 +164,15 @@ public class BProtocolFactory {
         return new String(Arrays.copyOfRange(buffer, pos, pos + size)).trim();
     }
 
+    /**
+     * Create string with defined size, trimmed with spaces.
+     * 
+     * @param inputStr
+     *            Input string.
+     * @param size
+     *            Size of output string.
+     * @return New strint trimmed with spaces.
+     */
     private static String fixString(String inputStr, int size) {
         return fixString(inputStr, size, ' ');
     }

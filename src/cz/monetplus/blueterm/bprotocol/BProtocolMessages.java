@@ -2,7 +2,12 @@ package cz.monetplus.blueterm.bprotocol;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
+/**
+ * @author "Dusan Krajcovic dusan.krajcovic [at] monetplus.cz"
+ * 
+ */
 public final class BProtocolMessages {
 
     /**
@@ -12,6 +17,11 @@ public final class BProtocolMessages {
         super();
     }
 
+    /**
+     * App info message in BProtocol.
+     * 
+     * @return Byte array of message.
+     */
     public static byte[] getAppInfo() {
 
         BProtocol bprotocol = new BProtocol("B1", "01", "        ",
@@ -24,6 +34,15 @@ public final class BProtocolMessages {
         return factory.serialize(bprotocol);
     }
 
+    /**
+     * @param amount
+     *            Amount of price.
+     * @param currencyCode
+     *            Currency code.
+     * @param invoiceNumber
+     *            Invoice number.
+     * @return Byte array with message.
+     */
     public static byte[] getSale(int amount, int currencyCode,
             String invoiceNumber) {
 
@@ -41,6 +60,15 @@ public final class BProtocolMessages {
         return factory.serialize(bprotocol);
     }
 
+    /**
+     * @param amount
+     *            Amount of price.
+     * @param currencyCode
+     *            Currency code.
+     * @param invoiceNumber
+     *            Invoice number.
+     * @return Byte array with message.
+     */
     public static byte[] getReturn(int amount, int currencyCode,
             String invoiceNumber) {
 
@@ -58,6 +86,15 @@ public final class BProtocolMessages {
         return factory.serialize(bprotocol);
     }
 
+    /**
+     * @param amount
+     *            Amount of price.
+     * @param currencyCode
+     *            Currency code.
+     * @param invoiceNumber
+     *            Invoice number.
+     * @return Byte array with message.
+     */
     public static byte[] getReversal(int amount, int currencyCode,
             String invoiceNumber) {
 
@@ -75,6 +112,9 @@ public final class BProtocolMessages {
         return factory.serialize(bprotocol);
     }
 
+    /**
+     * @return Byte array with message.
+     */
     public static byte[] getHanshake() {
 
         BProtocol bprotocol = new BProtocol("B1", "01", "        ",
@@ -87,8 +127,12 @@ public final class BProtocolMessages {
         return factory.serialize(bprotocol);
     }
 
+    /**
+     * @return String with current date time format.
+     */
     private static String getCurrentDateTimeForHeader() {
-        SimpleDateFormat formater = new SimpleDateFormat("yyMMddHHmmss");
+        SimpleDateFormat formater = new SimpleDateFormat("yyMMddHHmmss",
+                Locale.getDefault());
         return formater.format(new Date());
 
     }

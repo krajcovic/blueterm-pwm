@@ -1,19 +1,16 @@
 package cz.monetplus.blueterm.terminal;
 
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 import android.app.Activity;
 import android.util.Log;
 
 import com.verifone.vmf.api.VMF;
-import com.verifone.vmf.Constants;
 import com.verifone.vmf.api.VMF.AppLinkListener;
-import com.verifone.vmf.api.VMF.PrinterDataListener;
 
 import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
+import cz.monetplus.blueterm.MonetBTAPIError;
 import cz.monetplus.blueterm.Vx600ConnectionListener;
 import cz.monetplus.blueterm.util.MonetUtils;
 
@@ -22,20 +19,15 @@ import cz.monetplus.blueterm.util.MonetUtils;
  * incoming and outgoing transmissions.
  */
 public class ConnectedThread extends TerminalsThread {
-    private static final int LISTEN_PORT = 33333;
-
-    private static final int DESTINATION_ID = 128;
-
     private static final int APP_ID = 1;
+
+    private static final int LISTEN_PORT = 33333;
 
     private static final String TAG = "ConnectedThread";
 
-    private Activity activity;
+    private final Activity activity;
 
     private ByPassTCPServerThread bypassServerThread;
-
-    // private PipedOutputStream output;
-    // private PipedInputStream input;
 
     public ConnectedThread(MessageThread messageThread, Activity activity)
             throws Exception {
@@ -52,10 +44,6 @@ public class ConnectedThread extends TerminalsThread {
 
         VMF.setAppLinkListener(new AppLinkReceiver());
         // VMF.setPrinterDataListener(new DataReceiver());
-
-        bypassServerThread = new ByPassTCPServerThread(messageThread,
-                LISTEN_PORT);
-        bypassServerThread.start();
     }
 
     private class AppLinkReceiver implements AppLinkListener {
@@ -68,22 +56,36 @@ public class ConnectedThread extends TerminalsThread {
             }
 
             if (timeOut) {
-                messageThread.addMessage(HandleMessages.MESSAGE_QUIT, -10, 0,
-                        "AppLinkReceiver timeout!");
+                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
+                        MonetBTAPIError.APPLINK_TIMEOUT);
             }
         }
     }
 
-    public void run() {
+    @Override
+    public final void run() {
         Log.i(TAG, "BEGIN mConnectedThread");
+
+        try {
+            bypassServerThread = new ByPassTCPServerThread(messageThread,
+                    LISTEN_PORT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (messageThread != null) {
+                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
+                        MonetBTAPIError.BYPASS_EXCEPTION);
+            } else {
+                interrupt();
+            }
+            return;
+        }
 
         Log.e(TAG, "calling vmfConnectVx600");
         if (VMF.vmfConnectVx600(activity, new Vx600ConnectionListener(
                 messageThread), APP_ID) == 0) {
             Log.i(TAG, "vmfConnectVx600 VMF_OK");
 
-            int vmfAppLinkSend = VMF.vmfAppLinkSend(DESTINATION_ID,
-                    ("127.0.0.1:" + LISTEN_PORT).getBytes(), 120 * 100);
+            bypassServerThread.start();
 
             // Keep listening to the InputStream while connected
             while (!Thread.currentThread().isInterrupted()
@@ -102,44 +104,46 @@ public class ConnectedThread extends TerminalsThread {
 
             // Ukonci to.
             if (messageThread != null) {
-                messageThread.addMessage(HandleMessages.MESSAGE_QUIT, 0, 0,
-                        "OK");
+                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
+                        MonetBTAPIError.OK);
             } else {
                 interrupt();
             }
         } else {
             if (messageThread != null) {
-                messageThread.addMessage(HandleMessages.MESSAGE_QUIT, -3, 0,
-                        "VMF connection failed.");
+                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
+                        MonetBTAPIError.VMF_CONNECTION_FAILED);
             } else {
                 interrupt();
             }
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see cz.monetplus.blueterm.terminal.ITerminalsThread#write(byte[])
      */
     @Override
-    public void write(byte[] buffer) throws IOException {
+    public final void write(byte[] buffer) throws IOException {
         bypassServerThread.write(buffer);
         // VMF.vmfAppLinkSend(DESTINATION_ID, buffer, 5000 * 1000);
 
     }
 
     @Override
-    public void interrupt() {
+    public final void interrupt() {
         Log.i(TAG, "ConnectedThread interrupt");
         VMF.setAppLinkListener(null);
 
         if (bypassServerThread != null) {
             // do {
-            try {
-                bypassServerThread.interrupt();
-                bypassServerThread.join(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            // try {
+            bypassServerThread.interrupt();
+            // bypassServerThread.join(1000);
+            // } catch (InterruptedException e) {
+            // e.printStackTrace();
+            // }
             // } while (bypassServerThread.isAlive());
             bypassServerThread = null;
         }

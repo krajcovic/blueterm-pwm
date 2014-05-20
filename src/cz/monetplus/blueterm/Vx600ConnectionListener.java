@@ -2,8 +2,6 @@ package cz.monetplus.blueterm;
 
 import com.verifone.vmf.api.VMF.ConnectionListener;
 
-import cz.monetplus.blueterm.terminal.TerminalState;
-
 public class Vx600ConnectionListener implements ConnectionListener {
     MessageThread messageThread;
 
@@ -13,35 +11,31 @@ public class Vx600ConnectionListener implements ConnectionListener {
     }
 
     @Override
-    public void onConnectionEstablished() {
+    public final void onConnectionEstablished() {
         if (messageThread != null) {
             messageThread.addMessage(HandleMessages.MESSAGE_TOAST,
-                    TerminalState.UNDEFINED,
-                    TransactionCommand.UNKNOWN.ordinal(), "VMF connected.");
+                    "VMF connected.");
         }
     }
 
     @Override
-    public void onConnectionFailed() {
+    public final void onConnectionFailed() {
         if (messageThread != null) {
             messageThread.addMessage(HandleMessages.MESSAGE_TOAST,
-                    TerminalState.UNDEFINED,
-                    TransactionCommand.UNKNOWN.ordinal(),
-                    "VMF connection failed");
-            messageThread.addMessage(HandleMessages.MESSAGE_QUIT, -6, 0,
-                    "VMF connection failed");
+                    MonetBTAPIError.VMF_CONNECTION_FAILED.getMessage());
+            messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
+                    MonetBTAPIError.VMF_CONNECTION_FAILED);
         }
 
     }
 
     @Override
-    public void onDisconnected(String arg0) {
+    public final void onDisconnected(String arg0) {
         if (messageThread != null) {
             messageThread.addMessage(HandleMessages.MESSAGE_TOAST,
-                    TerminalState.UNDEFINED,
-                    TransactionCommand.UNKNOWN.ordinal(), "VMF disconected");
-            messageThread.addMessage(HandleMessages.MESSAGE_QUIT, -6, 0,
                     "VMF disconected");
+            messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
+                    MonetBTAPIError.VMF_DISCONNECTED);
         }
 
     }

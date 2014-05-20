@@ -73,7 +73,7 @@ public class ServerFrame {
         parseFrame(buffer);
     }
 
-    public TerminalCommands getCommand() {
+    public final TerminalCommands getCommand() {
         return command;
     }
 
@@ -81,11 +81,11 @@ public class ServerFrame {
         this.command = command;
     }
 
-    public byte[] getId() {
+    public final byte[] getId() {
         return id;
     }
 
-    public int getIdInt() {
+    public final int getIdInt() {
         int tmp = id[0] & 0xFF;
         tmp <<= 8;
         tmp = id[1] & 0xFF;
@@ -93,19 +93,19 @@ public class ServerFrame {
         return tmp;
     }
 
-    public void setId(byte[] id) {
+    public final void setId(byte[] id) {
         this.id = id;
     }
 
-    public byte[] getData() {
+    public final byte[] getData() {
         return data;
     }
 
-    public void setData(byte[] data) {
+    public final void setData(byte[] data) {
         this.data = data;
     }
 
-    public void parseFrame(byte[] buffer) {
+    public final void parseFrame(byte[] buffer) {
         if (buffer != null) {
             command = TerminalCommands.valueOf(buffer[0]);
             id[0] = buffer[1];
@@ -114,7 +114,7 @@ public class ServerFrame {
         }
     }
 
-    public byte[] createFrame() {
+    public final byte[] createFrame() {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         try {

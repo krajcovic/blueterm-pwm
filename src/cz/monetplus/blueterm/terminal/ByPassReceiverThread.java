@@ -7,22 +7,48 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import android.util.Log;
-
 import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
+import cz.monetplus.blueterm.MonetBTAPIError;
 import cz.monetplus.blueterm.SlipInputReader;
-import cz.monetplus.blueterm.TransactionCommand;
 import cz.monetplus.blueterm.util.MonetUtils;
 
+/**
+ * @author "Dusan Krajcovic dusan.krajcovic [at] monetplus.cz"
+ * 
+ */
 public class ByPassReceiverThread extends TerminalsThread {
 
+    /**
+     * 
+     */
     private static final String TAG = "ByPassReceiverThread";
 
+    /**
+     * 
+     */
     private final Socket clientSocket;
+
+    /**
+     * 
+     */
     private DataInputStream input;
+
+    /**
+     * 
+     */
     private DataOutputStream output;
 
-    public ByPassReceiverThread(MessageThread messageThread, Socket clientSocket) throws Exception {
+    /**
+     * @param messageThread
+     *            Synchronized message thread.
+     * @param clientSocket
+     *            Client socket for IO.
+     * @throws Exception
+     *             If a messageThread is null.
+     */
+    public ByPassReceiverThread(MessageThread messageThread, Socket clientSocket)
+            throws Exception {
         super(messageThread);
 
         this.clientSocket = clientSocket;
@@ -36,10 +62,8 @@ public class ByPassReceiverThread extends TerminalsThread {
         }
     }
 
-    public void run() {
-        int returnCode = 0;
-        String returnMessage = "undefined interrupted.";
-
+    @Override
+    public final void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] buffer = SlipInputReader.read(input);
@@ -51,35 +75,31 @@ public class ByPassReceiverThread extends TerminalsThread {
                     if (messageThread != null) {
                         messageThread.addMessage(
                                 HandleMessages.MESSAGE_TERM_READ,
-                                buffer.length, 0, buffer);
+                                buffer.length, buffer);
                     }
                 }
             } catch (SocketException e) {
                 // OK.
-                // e.printStackTrace();
-                // returnMessage = "Socket closed.";
             } catch (IOException e) {
                 e.printStackTrace();
-                returnCode = -1;
-                returnMessage = "ByPassReceiver failed";
-                connectionLost(returnCode, returnMessage);
+                connectionLost(MonetBTAPIError.BYPASS_FAIL);
                 break;
             }
         }
     }
 
     @Override
-    public void write(byte[] buffer) throws IOException {
+    public final void write(byte[] buffer) throws IOException {
         Log.i(TAG, "TCP write (hex): " + MonetUtils.bytesToHex(buffer));
         output.write(buffer);
         output.flush();
     }
 
     @Override
-    public void interrupt() {
+    public final void interrupt() {
 
         Log.i(TAG, "ByPassReceiver interrupt");
-        
+
         SlipInputReader.setExit(true);
 
         try {

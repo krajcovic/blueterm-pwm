@@ -1,65 +1,29 @@
 package cz.monetplus.blueterm;
 
-public class TransactionOut {
-    
-    private Integer resultCode;
-    
-    private String message;
-    
-    private Integer authCode;
-    
-    private Integer seqId;
-    
-    private String cardNumber;
-    
-    private String cardType;
+public interface TransactionOut {
 
-    public Integer getResultCode() {
-        return resultCode;
-    }
+    public abstract void setCardType(String cardType);
 
-    public void setResultCode(Integer resultCode) {
-        this.resultCode = resultCode;
-    }
+    public abstract void setCardNumber(String cardNumber);
 
-    public String getMessage() {
-        return message;
-    }
+    public abstract String getCardNumber();
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    public abstract void setSeqId(Integer seqId);
 
-    public Integer getAuthCode() {
-        return authCode;
-    }
+    public abstract Integer getSeqId();
 
-    public void setAuthCode(Integer authCode) {
-        this.authCode = authCode;
-    }
+    public abstract void setAuthCode(Integer authCode);
 
-    public Integer getSeqId() {
-        return seqId;
-    }
+    public abstract Integer getAuthCode();
 
-    public void setSeqId(Integer seqId) {
-        this.seqId = seqId;
-    }
+    public abstract void setMessage(String message);
 
-    public String getCardNumber() {
-        return cardNumber;
-    }
+    public abstract String getMessage();
 
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
-    }
+    public abstract void setResultCode(Integer resultCode);
 
-    public String getCardType() {
-        return cardType;
-    }
+    public abstract Integer getResultCode();
 
-    public void setCardType(String cardType) {
-        this.cardType = cardType;
-    }
+    public abstract String getCardType();
 
 }

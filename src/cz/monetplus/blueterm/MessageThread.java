@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import android.app.Activity;
-import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 import cz.monetplus.blueterm.bprotocol.BProtocol;
@@ -51,7 +50,7 @@ public class MessageThread extends Thread {
     /**
      * Message queue for handling messages from threads.
      */
-    private final Queue<Message> queue = new LinkedList<Message>();
+    private final Queue<MonetMessage> queue = new LinkedList<MonetMessage>();
 
     /**
      * Application context.
@@ -71,7 +70,7 @@ public class MessageThread extends Thread {
     /**
      * Transaction output params.
      */
-    private TransactionOut transactionOutputData = new TransactionOut();
+    private TransactionOutVx600 transactionOutputData = new TransactionOutVx600();
 
     /**
      * Stop this thread.
@@ -91,7 +90,7 @@ public class MessageThread extends Thread {
     /**
      * 
      */
-    private int currentTerminalState;
+    private TerminalState currentTerminalState;
 
     /**
      * @param activity
@@ -115,7 +114,7 @@ public class MessageThread extends Thread {
     }
 
     @Override
-    public void run() {
+    public final void run() {
         while (!stopThread) {
             if (queue.peek() != null) {
                 handleMessage(queue.poll());
@@ -133,7 +132,7 @@ public class MessageThread extends Thread {
      * 
      * @return TransactionOut result Data.
      */
-    public TransactionOut getValue() {
+    public final TransactionOut getValue() {
         return transactionOutputData;
     }
 
@@ -141,7 +140,7 @@ public class MessageThread extends Thread {
      * Create and send pay request to terminal.
      */
     private void pay() {
-        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1, SLIPFrame
+        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, SLIPFrame
                 .createFrame(new TerminalFrame(terminalPort, BProtocolMessages
                         .getSale(transactionInputData.getAmount(),
                                 transactionInputData.getCurrency(),
@@ -153,7 +152,7 @@ public class MessageThread extends Thread {
      * Create and send handshake to terminal.
      */
     private void handshake() {
-        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1, SLIPFrame
+        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, SLIPFrame
                 .createFrame(new TerminalFrame(terminalPort, BProtocolMessages
                         .getHanshake()).createFrame()));
     }
@@ -162,54 +161,36 @@ public class MessageThread extends Thread {
      * Create and send app info request to terminal.
      */
     private void appInfo() {
-        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1, SLIPFrame
+        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, SLIPFrame
                 .createFrame(new TerminalFrame(terminalPort, BProtocolMessages
                         .getAppInfo()).createFrame()));
     }
 
-    /**
-     * @param what
-     *            HandleMessages.
-     * @param terminalState
-     *            TerminalState. Muze byt i datalength.
-     * @param transactionCommand
-     *            TransactionCommand
-     * @param obj
-     *            Data for executing messages.
-     */
+    public final void addMessage(HandleMessages messageTermWrite,
+            byte[] createFrame) {
+        this.addMessage(new MonetMessage(messageTermWrite, createFrame,
+                createFrame.length));
+    }
 
-    public final void addMessage(int what, int terminalState,
-            int transactionCommand, Object obj) {
-        addMessage(Message.obtain(null, what, terminalState,
-                transactionCommand, obj));
+    public final void addMessage(HandleMessages message, String string) {
+        addMessage(new MonetMessage(message, string));
+
     }
 
     /**
-     * @param what
-     *            HandleMessages.
-     * @param terminalState
-     *            TerminalState.
-     * @param transactionCommand
-     *            TransactionCommand
+     * @param message
+     *            Handle message code.
      */
-    public void addMessage(int what, int terminalState, int transactionCommand) {
-        addMessage(Message
-                .obtain(null, what, terminalState, transactionCommand));
-    }
+    public final void addMessage(HandleMessages message) {
+        addMessage(new MonetMessage(message));
 
-    /**
-     * @param what
-     *            HandleMessages.
-     */
-    public void addMessage(int what) {
-        addMessage(Message.obtain(null, what));
     }
 
     /**
      * @param msg
      *            Message for addding to queue.
      */
-    public void addMessage(Message msg) {
+    private void addMessage(MonetMessage msg) {
         queue.add(msg);
     }
 
@@ -217,61 +198,73 @@ public class MessageThread extends Thread {
      * @param service
      *            Terminal service serving bluetooth.
      */
-    public void setTerminalService(TerminalServiceBT service) {
+    public final void setTerminalService(TerminalServiceBT service) {
         this.terminalService = service;
     }
 
-    public void handleMessage(final Message msg) {
+    public final void handleMessage(final MonetMessage msg) {
         if (msg == null) {
+            Log.e(TAG, "handleMessage got null message");
             return;
         }
-        switch (msg.what) {
-        case HandleMessages.MESSAGE_STATE_CHANGE:
+
+        switch (msg.getMessage()) {
+
+        case MESSAGE_STATE_CHANGE:
             handleStateChange(msg);
             break;
 
-        case HandleMessages.MESSAGE_TERM_SEND_COMMAND:
+        case MESSAGE_TERM_SEND_COMMAND:
             break;
         // case HandleMessages.MESSAGE_SERVER_WRITE:
         // break;
         // case HandleMessages.MESSAGE_SERVER_READ:
         // break;
 
-        case HandleMessages.MESSAGE_TERM_WRITE:
+        case MESSAGE_TERM_WRITE:
             // Jedine misto v aplikaci pres ktere se posila do terminalu
             try {
-                write2Terminal((byte[]) msg.obj);
+                write2Terminal(msg.getData().buffer());
             } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-                this.stopThread(e.hashCode(), e.getMessage());
+                e.printStackTrace();
+                this.stopThread(MonetBTAPIError.WRITE_2_TERMINAL);
             }
             break;
 
-        case HandleMessages.MESSAGE_CONNECTED:
+        case MESSAGE_CONNECTED:
             // Send to terminal information about connection at server.
             connectionRequest(msg);
             break;
 
-        case HandleMessages.MESSAGE_TERM_READ:
-            handleTermReceived(msg);
-            break;
-        case HandleMessages.MESSAGE_DEVICE_NAME:
-            // Nemam tuseni k cemu bych to vyuzil
-            break;
-        case HandleMessages.MESSAGE_TOAST:
-            if (msg != null && msg.obj != null) {
-                Log.i(TAG, msg.obj.toString());
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(activity, msg.obj.toString(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+        case MESSAGE_TERM_READ:
+            try {
+                handleTermReceived(msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+                this.stopThread(MonetBTAPIError.READ_FROM_TERMINAL);
             }
             break;
-        case HandleMessages.MESSAGE_QUIT:
-            this.stopThread(msg.arg1, msg.obj.toString());
+        case MESSAGE_DEVICE_NAME:
+            // Nemam tuseni k cemu bych to vyuzil
+            break;
+        case MESSAGE_TOAST:
+            Log.i(TAG, msg.getToastMessage());
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(activity, msg.getToastMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+            break;
+        case MESSAGE_QUIT:
+            Log.i(TAG, "MESSAGE_QUIT message: "
+                    + msg.getErrorInfo().getMessage());
+            this.stopThread(msg.getErrorInfo());
+            break;
+        default:
+            Log.e(TAG,
+                    "Invalid message handle code. For developer: fatal error");
             break;
         }
     }
@@ -288,8 +281,8 @@ public class MessageThread extends Thread {
         // Check that we're actually connected before trying anything
         if (terminalService.getState() != TerminalState.STATE_CONNECTED) {
 
-            this.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
-                    R.string.not_connected);
+            this.addMessage(HandleMessages.MESSAGE_TOAST, this.activity
+                    .getResources().getString(R.string.not_connected));
             return;
         }
 
@@ -305,16 +298,16 @@ public class MessageThread extends Thread {
      * @param msg
      *            Contains status(arg1) about current connection to server.
      * */
-    private void connectionRequest(Message msg) {
+    private void connectionRequest(MonetMessage msg) {
         byte[] status = new byte[1];
-        status[0] = (byte) msg.arg1;
+        status[0] = (byte) 0;
         ServerFrame soFrame = new ServerFrame(
-                TerminalCommands.TERM_CMD_SERVER_CONNECTED,
-                serverConnectionID, status);
+                TerminalCommands.TERM_CMD_SERVER_CONNECTED, serverConnectionID,
+                status);
         TerminalFrame toFrame = new TerminalFrame(
                 TerminalPorts.SERVER.getPortNumber(), soFrame.createFrame());
 
-        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1,
+        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE,
                 SLIPFrame.createFrame(toFrame.createFrame()));
     }
 
@@ -323,9 +316,11 @@ public class MessageThread extends Thread {
      * 
      * @param msg
      *            Messaget contains information read from terminal.
+     * @throws IOException
+     *             Input output exception (byte array).
      */
-    private void handleTermReceived(Message msg) {
-        slipOutputpFraming.write((byte[]) msg.obj, 0, msg.arg1);
+    private void handleTermReceived(MonetMessage msg) throws IOException {
+        slipOutputpFraming.write(msg.getData().buffer());
 
         // Check
         if (SLIPFrame.isFrame(slipOutputpFraming.toByteArray())) {
@@ -356,10 +351,8 @@ public class MessageThread extends Thread {
                             .deserialize(termFrame.getData());
 
                     if (bprotocol.getProtocolType().equals("B0")) {
-                        String message = "Terminal working(B0)...";
-
-                        this.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
-                                message);
+                        this.addMessage(HandleMessages.MESSAGE_TOAST,
+                                "Terminal working(B0)...");
                     }
 
                     if (bprotocol.getProtocolType().equals("B2")) {
@@ -382,7 +375,7 @@ public class MessageThread extends Thread {
     }
 
     private void executeB2(BProtocol bprotocol) {
-        transactionOutputData = new TransactionOut();
+        transactionOutputData = new TransactionOutVx600();
         try {
             transactionOutputData.setResultCode(Integer.valueOf(bprotocol
                     .getTagMap().get(BProtocolTag.ResponseCode)));
@@ -412,51 +405,66 @@ public class MessageThread extends Thread {
                 transactionOutputData.getMessage());
     }
 
-    private void stopThread(Integer resultCode, String resultMessage) {
+    /**
+     * @param resultCode
+     *            The result code.
+     * @param message
+     *            The result message.
+     */
+    private void stopThread(Integer resultCode, String message) {
         transactionOutputData.setResultCode(resultCode);
-        transactionOutputData.setMessage(resultMessage);
+        transactionOutputData.setMessage(message);
+
+        terminalService.stop();
+        stopThread = true;
+
+    }
+
+    /**
+     * @param result
+     *            The error result.
+     */
+    private void stopThread(MonetBTAPIError result) {
+
+        transactionOutputData.setResultCode(result.getCode());
+        transactionOutputData.setMessage(result.getMessage());
 
         terminalService.stop();
         stopThread = true;
     }
 
-    // private void stopThread() {
-    // terminalService.stop();
-    // stopThread = true;
-    // }
-
-    private void handleStateChange(Message msg) {
+    /**
+     * @param msg
+     *            MonetMessage, with new terminal state.
+     */
+    private void handleStateChange(MonetMessage msg) {
         Log.i(TAG, "MESSAGE_STATE_CHANGE: " + getCurrentTerminalState()
-                + " -> " + msg.arg1);
-        this.currentTerminalState = msg.arg1;
+                + " -> " + msg.getTerminalState());
+        this.currentTerminalState = msg.getTerminalState();
 
-        switch (msg.arg1) {
-        case TerminalState.STATE_CONNECTED:
-            if (msg.arg2 >= 0) {
-                switch (TransactionCommand.values()[msg.arg2]) {
-                case HANDSHAKE:
-                    handshake();
-                    break;
-                case INFO:
-                    appInfo();
-                    break;
-                case PAY:
-                    pay();
-                    break;
-                case ONLYCONNECT:
-                    break;
-                case UNKNOWN:
-                    break;
-                default:
-                    break;
+        switch (this.currentTerminalState) {
+        case STATE_CONNECTED:
 
-                }
+            switch (msg.getTransactionCommand()) {
+            case HANDSHAKE:
+                handshake();
+                break;
+            case INFO:
+                appInfo();
+                break;
+            case PAY:
+                pay();
+                break;
+            case ONLYCONNECT:
+                break;
+            case UNKNOWN:
+                break;
+            default:
+                break;
+
             }
             break;
-        case TerminalState.STATE_CONNECTING:
-        case TerminalState.STATE_LISTEN:
-            break;
-        case TerminalState.STATE_NONE:
+        default:
             break;
         }
     }
@@ -473,7 +481,7 @@ public class MessageThread extends Thread {
             break;
 
         case TERM_CMD_CONNECT:
-            this.addMessage(HandleMessages.MESSAGE_TOAST, -1, -1,
+            this.addMessage(HandleMessages.MESSAGE_TOAST,
                     "Connecting to server...");
             serverConnectionID = serverFrame.getId();
 
@@ -493,10 +501,10 @@ public class MessageThread extends Thread {
 
             TerminalFrame responseTerminal = new TerminalFrame(termFrame
                     .getPort().getPortNumber(), new ServerFrame(
-                    TerminalCommands.TERM_CMD_CONNECT_RES,
-                    serverFrame.getId(), new byte[1]).createFrame());
+                    TerminalCommands.TERM_CMD_CONNECT_RES, serverFrame.getId(),
+                    new byte[1]).createFrame());
 
-            this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1,
+            this.addMessage(HandleMessages.MESSAGE_TERM_WRITE,
                     SLIPFrame.createFrame(responseTerminal.createFrame()));
 
             break;
@@ -510,7 +518,11 @@ public class MessageThread extends Thread {
 
         case TERM_CMD_SERVER_WRITE:
             // Send data to server.
-            tcpThread.sendMessage(serverFrame.getData());
+            if (tcpThread != null && tcpThread.isAlive()) {
+                tcpThread.sendMessage(serverFrame.getData());
+            } else {
+                Log.e(TAG, "TCP thread isnt runnting >> " + tcpThread);
+            }
         default:
             break;
         }
@@ -529,14 +541,40 @@ public class MessageThread extends Thread {
             final ServerFrame serverFrame) {
         TerminalFrame responseTerminal = new TerminalFrame(termFrame.getPort()
                 .getPortNumber(),
-                new ServerFrame(TerminalCommands.TERM_CMD_ECHO_RES,
-                        serverFrame.getId(), null).createFrame());
+                new ServerFrame(TerminalCommands.TERM_CMD_ECHO_RES, serverFrame
+                        .getId(), null).createFrame());
 
-        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE, -1, -1,
+        this.addMessage(HandleMessages.MESSAGE_TERM_WRITE,
                 SLIPFrame.createFrame(responseTerminal.createFrame()));
     }
 
-    public synchronized int getCurrentTerminalState() {
+    /**
+     * @return Current terminal state
+     */
+    public final synchronized TerminalState getCurrentTerminalState() {
         return currentTerminalState;
+    }
+
+    public final void addMessage(HandleMessages message, int length,
+            byte[] buffer) {
+        this.addMessage(new MonetMessage(message, buffer, length));
+
+    }
+
+    public final void addMessage(HandleMessages message, MonetBTAPIError error) {
+        this.addMessage(new MonetMessage(message, error));
+
+    }
+
+    public final void addMessage(HandleMessages message,
+            TerminalState terminalState, TransactionCommand command) {
+        this.addMessage(new MonetMessage(message, terminalState, command));
+
+    }
+
+    public final void addMessage(HandleMessages message,
+            TerminalState terminalState) {
+        this.addMessage(new MonetMessage(message, terminalState, null));
+
     }
 }

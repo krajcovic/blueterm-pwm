@@ -85,72 +85,133 @@ public class BProtocol implements Serializable {
         this.standardCRC16 = standardCRC16;
     }
 
-    public String getProtocolType() {
+    /**
+     * @return Protocol type.
+     */
+    public final String getProtocolType() {
         return protocolType;
     }
 
-    public void setProtocolType(String protocolType) {
+    /**
+     * @param protocolType
+     *            The protocol type.
+     */
+    public final void setProtocolType(String protocolType) {
         this.protocolType = protocolType;
     }
 
-    public String getProtocolVersion() {
+    /**
+     * @return Protocol version.
+     */
+    public final String getProtocolVersion() {
         return protocolVersion;
     }
 
-    public void setProtocolVersion(String protocolVersion) {
+    /**
+     * @param protocolVersion
+     *            Protocol version.
+     */
+    public final void setProtocolVersion(String protocolVersion) {
         this.protocolVersion = protocolVersion;
     }
 
-    public String getPosId() {
+    /**
+     * @return POS ID.
+     */
+    public final String getPosId() {
         return posId;
     }
 
-    public void setPosId(String posId) {
+    /**
+     * @param posId
+     *            The POS id.
+     */
+    public final void setPosId(String posId) {
         this.posId = posId;
     }
 
-    public String getTransactionDateTime() {
+    /**
+     * @return Transaction date time.
+     */
+    public final String getTransactionDateTime() {
         return transactionDateTime;
     }
 
-    public void setTransactionDateTime(String transactionDateTime) {
+    /**
+     * @param transactionDateTime
+     *            The String with date time of transaction.
+     */
+    public final void setTransactionDateTime(String transactionDateTime) {
         this.transactionDateTime = transactionDateTime;
     }
 
-    public String getFlag() {
+    /**
+     * @return Flag indicator.
+     */
+    public final String getFlag() {
         return flag;
     }
 
-    public void setFlag(String flag) {
+    /**
+     * @param flag
+     *            The flag indicator.
+     */
+    public final void setFlag(String flag) {
         this.flag = flag;
     }
 
-    public String getOptionalDataLen() {
+    /**
+     * @return Length of optional data.
+     */
+    public final String getOptionalDataLen() {
         return optionalDataLen;
     }
 
-    public void setOptionalDataLen(String optionalDataLen) {
+    /**
+     * @param optionalDataLen
+     *            String with length of optional data.
+     */
+    public final void setOptionalDataLen(String optionalDataLen) {
         this.optionalDataLen = optionalDataLen;
     }
 
-    public String getStandardCRC16() {
+    /**
+     * @return String wint CRC.
+     */
+    public final String getStandardCRC16() {
         return standardCRC16;
     }
 
-    public void setStandardCRC16(String standardCRC16) {
+    /**
+     * @param standardCRC16
+     *            Standard CRC.
+     */
+    public final void setStandardCRC16(String standardCRC16) {
         this.standardCRC16 = standardCRC16;
     }
 
-    public HashMap<BProtocolTag, String> getTagMap() {
+    /**
+     * @return Map with tags.
+     */
+    public final HashMap<BProtocolTag, String> getTagMap() {
         return tagMap;
     }
 
-    public void setTagMap(HashMap<BProtocolTag, String> tagMap) {
+    /**
+     * @param tagMap
+     *            The hasm map with b protocol tags.
+     */
+    public final void setTagMap(HashMap<BProtocolTag, String> tagMap) {
         this.tagMap = tagMap;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
-    public String toString() {
+    public final String toString() {
         return this.getProtocolType() + " " + this.getProtocolVersion() + " "
                 + this.getTransactionDateTime() + "\n" + tagMap.values();
     }
