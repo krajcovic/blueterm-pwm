@@ -18,6 +18,8 @@ public class MonetMessage {
 
     private final TransactionCommand transactionCommand;
 
+    private final byte serverStatus;
+
     public MonetMessage(HandleMessages message) {
 
         this.message = message;
@@ -26,6 +28,7 @@ public class MonetMessage {
         this.errorInfo = null;
         this.terminalState = null;
         this.transactionCommand = null;
+        this.serverStatus = 0;
     }
 
     public MonetMessage(HandleMessages message, byte[] buffer, int length) {
@@ -36,6 +39,7 @@ public class MonetMessage {
         this.errorInfo = null;
         this.terminalState = null;
         this.transactionCommand = null;
+        this.serverStatus = 0;
     }
 
     public MonetMessage(HandleMessages message, String string) {
@@ -46,6 +50,7 @@ public class MonetMessage {
         this.errorInfo = null;
         this.terminalState = null;
         this.transactionCommand = null;
+        this.serverStatus = 0;
     }
 
     public MonetMessage(HandleMessages message, MonetBTAPIError error) {
@@ -55,6 +60,7 @@ public class MonetMessage {
         toastMessage = null;
         this.terminalState = null;
         this.transactionCommand = null;
+        this.serverStatus = 0;
     }
 
     public MonetMessage(HandleMessages message, TerminalState terminalState,
@@ -65,6 +71,17 @@ public class MonetMessage {
         toastMessage = null;
         this.terminalState = terminalState;
         this.transactionCommand = command;
+        this.serverStatus = 0;
+    }
+
+    public MonetMessage(HandleMessages message, byte serverStatus) {
+        this.message = message;
+        this.errorInfo = null;
+        data = null;
+        toastMessage = null;
+        this.terminalState = null;
+        this.transactionCommand = null;
+        this.serverStatus = serverStatus;
     }
 
     public final HandleMessages getMessage() {
@@ -90,5 +107,9 @@ public class MonetMessage {
 
     public final ByteArrayBuffer getData() {
         return data;
+    }
+
+    public byte getServerStatus() {
+        return serverStatus;
     }
 }

@@ -253,7 +253,7 @@ public class MessageThread extends Thread {
                 @Override
                 public void run() {
                     Toast.makeText(activity, msg.getToastMessage(),
-                            Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_SHORT).show();
                 }
             });
             break;
@@ -300,7 +300,7 @@ public class MessageThread extends Thread {
      * */
     private void connectionRequest(MonetMessage msg) {
         byte[] status = new byte[1];
-        status[0] = (byte) 0;
+        status[0] = msg.getServerStatus();
         ServerFrame soFrame = new ServerFrame(
                 TerminalCommands.TERM_CMD_SERVER_CONNECTED, serverConnectionID,
                 status);
@@ -575,6 +575,12 @@ public class MessageThread extends Thread {
     public final void addMessage(HandleMessages message,
             TerminalState terminalState) {
         this.addMessage(new MonetMessage(message, terminalState, null));
+
+    }
+
+    public void addMessageConnected(byte serverStatus) {
+        this.addMessage(new MonetMessage(HandleMessages.MESSAGE_CONNECTED,
+                serverStatus));
 
     }
 }

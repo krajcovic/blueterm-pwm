@@ -10,6 +10,7 @@ import java.net.Socket;
 import android.util.Log;
 import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
+import cz.monetplus.blueterm.MonetBTAPIError;
 import cz.monetplus.blueterm.util.MonetUtils;
 
 /**
@@ -99,6 +100,7 @@ public class TCPClient {
 
     public final void run() {
 
+        Socket socket = null;
         isRunning = true;
 
         try {
@@ -110,7 +112,7 @@ public class TCPClient {
             Log.e("TCP Client", "C: Connecting...");
 
             // create a socket to make the connection with the server
-            Socket socket = new Socket();
+            socket = new Socket();
             socket.connect(new InetSocketAddress(serverAddr, this.serverPort),
                     timeout);
 
@@ -122,7 +124,7 @@ public class TCPClient {
 
                 in = socket.getInputStream();
 
-                mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED);
+                mHandler.addMessageConnected((byte) 0);
                 mHandler.addMessage(HandleMessages.MESSAGE_TOAST,
                         "Connected to server.");
 
@@ -131,7 +133,7 @@ public class TCPClient {
                 while (isRunning) {
                     int len = in.available();
                     if (len > 0) {
-                        serverMessage = new byte[Math.min(len, 700)];
+                        serverMessage = new byte[Math.min(len, 1024)];
                         len = in.read(serverMessage);
                         Log.d(TAG, "TCP read " + len + " bytes. Expected "
                                 + serverMessage.length + " bytes");
@@ -153,12 +155,12 @@ public class TCPClient {
             } catch (Exception e) {
 
                 Log.e("TCP", "S: Error", e);
+                e.printStackTrace();
+
                 if (isRunning) {
-                    // Uz koncime, takze nic nikam neposilej
-                    // TODO: tady mam snad sakra volat QUIT!!! zkontrolovat
-                    // mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 1,
-                    // -1, null);
-                    mHandler.addMessage(HandleMessages.MESSAGE_QUIT);
+                    // Selhala necekane tcp comunikace, takze to ukoncime, cele.
+                    mHandler.addMessage(HandleMessages.MESSAGE_QUIT,
+                            MonetBTAPIError.SERVER_COM_FAILED);
                 }
 
             } finally {
@@ -170,13 +172,20 @@ public class TCPClient {
             }
 
         } catch (Exception e) {
-
             Log.e("TCP", "C: Error", e);
-            // TODO: tady mam snad sakra volat QUIT!!! zkontrolovat
-            // mHandler.addMessage(HandleMessages.MESSAGE_CONNECTED, 1, -1,
-            // null);
-            mHandler.addMessage(HandleMessages.MESSAGE_QUIT);
+            e.printStackTrace();
+            // Nepodarilo se navazat spojeni.
+            mHandler.addMessageConnected((byte) 1);
+        }
 
+        if (socket != null) {
+            try {
+                socket.close();
+                socket = null;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
     }

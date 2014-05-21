@@ -54,6 +54,11 @@ public enum MonetBTAPIError {
     /**
      * 
      */
+    SERVER_COM_FAILED(15, "Sever communication failed."),
+
+    /**
+     * 
+     */
     SOFT_DISCONNECT(100, "Manual soft disconnect.");
 
     /**
