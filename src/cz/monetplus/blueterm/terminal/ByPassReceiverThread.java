@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import android.util.Log;
-import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
 import cz.monetplus.blueterm.MonetBTAPIError;
 import cz.monetplus.blueterm.SlipInputReader;
@@ -73,9 +72,7 @@ public class ByPassReceiverThread extends TerminalsThread {
 
                     // Send the obtained bytes to the UI Activity
                     if (messageThread != null) {
-                        messageThread.addMessage(
-                                HandleMessages.MESSAGE_TERM_READ,
-                                buffer.length, buffer);
+                        messageThread.addMessageTermRead(buffer.length, buffer);
                     }
                 }
             } catch (SocketException e) {

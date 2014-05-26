@@ -98,8 +98,8 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
                                         connectionId, message).createFrame());
 
                         // send to terminal
-                        mHandler.addMessage(HandleMessages.MESSAGE_TERM_WRITE,
-                                SLIPFrame.createFrame(termFrame.createFrame()));
+                        mHandler.addMessageTermWrite(SLIPFrame
+                                .createFrame(termFrame.createFrame()));
                     }
                 });
 
@@ -109,8 +109,7 @@ public final class TCPClientThread extends Thread implements ObjectThreads {
     @Override
     public void interrupt() {
 
-        mHandler.addMessage(HandleMessages.MESSAGE_TOAST,
-                "Disconecting from server.");
+        mHandler.addMessageToast("Disconecting from server.");
 
         if (mTcpClient != null) {
             mTcpClient.stopClient();

@@ -8,7 +8,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import android.util.Log;
-import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
 import cz.monetplus.blueterm.MonetBTAPIError;
 import cz.monetplus.blueterm.util.MonetUtils;
@@ -125,8 +124,7 @@ public class TCPClient {
                 in = socket.getInputStream();
 
                 mHandler.addMessageConnected((byte) 0);
-                mHandler.addMessage(HandleMessages.MESSAGE_TOAST,
-                        "Connected to server.");
+                mHandler.addMessageToast("Connected to server.");
 
                 // in this while the client listens for the messages sent by the
                 // server
@@ -159,8 +157,7 @@ public class TCPClient {
 
                 if (isRunning) {
                     // Selhala necekane tcp comunikace, takze to ukoncime, cele.
-                    mHandler.addMessage(HandleMessages.MESSAGE_QUIT,
-                            MonetBTAPIError.SERVER_COM_FAILED);
+                    mHandler.addMessageQuit(MonetBTAPIError.SERVER_COM_FAILED);
                 }
 
             } finally {

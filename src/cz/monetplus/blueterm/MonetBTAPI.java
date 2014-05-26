@@ -130,7 +130,7 @@ public class MonetBTAPI {
 
                 if (terminalService.getState() == TerminalState.STATE_CONNECTED) {
 
-                    messageThread.addMessage(
+                    messageThread.addMessageTerminalConnected(
                             HandleMessages.MESSAGE_STATE_CHANGE,
                             TerminalState.STATE_CONNECTED, in.getCommand());
                 }

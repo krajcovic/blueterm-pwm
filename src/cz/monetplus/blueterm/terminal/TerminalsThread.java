@@ -45,9 +45,8 @@ public abstract class TerminalsThread extends Thread implements
     public final void connectionLost(MonetBTAPIError error) {
         if (messageThread != null) {
             // Send a failure message back to the Activity
-            messageThread.addMessage(HandleMessages.MESSAGE_TOAST,
-                    error.getMessage());
-            messageThread.addMessage(HandleMessages.MESSAGE_QUIT, error);
+            messageThread.addMessageToast(error.getMessage());
+            messageThread.addMessageQuit(error);
         }
     }
 

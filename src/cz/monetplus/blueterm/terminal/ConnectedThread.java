@@ -8,7 +8,6 @@ import android.util.Log;
 import com.verifone.vmf.api.VMF;
 import com.verifone.vmf.api.VMF.AppLinkListener;
 
-import cz.monetplus.blueterm.HandleMessages;
 import cz.monetplus.blueterm.MessageThread;
 import cz.monetplus.blueterm.MonetBTAPIError;
 import cz.monetplus.blueterm.Vx600ConnectionListener;
@@ -56,8 +55,7 @@ public class ConnectedThread extends TerminalsThread {
             }
 
             if (timeOut) {
-                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
-                        MonetBTAPIError.APPLINK_TIMEOUT);
+                messageThread.addMessageQuit(MonetBTAPIError.APPLINK_TIMEOUT);
             }
         }
     }
@@ -72,8 +70,7 @@ public class ConnectedThread extends TerminalsThread {
         } catch (Exception e) {
             e.printStackTrace();
             if (messageThread != null) {
-                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
-                        MonetBTAPIError.BYPASS_EXCEPTION);
+                messageThread.addMessageQuit(MonetBTAPIError.BYPASS_EXCEPTION);
             } else {
                 interrupt();
             }
@@ -104,15 +101,14 @@ public class ConnectedThread extends TerminalsThread {
 
             // Ukonci to.
             if (messageThread != null) {
-                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
-                        MonetBTAPIError.OK);
+                messageThread.addMessageQuit(MonetBTAPIError.OK);
             } else {
                 interrupt();
             }
         } else {
             if (messageThread != null) {
-                messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
-                        MonetBTAPIError.VMF_CONNECTION_FAILED);
+                messageThread
+                        .addMessageQuit(MonetBTAPIError.VMF_CONNECTION_FAILED);
             } else {
                 interrupt();
             }

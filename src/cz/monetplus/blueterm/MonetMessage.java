@@ -20,6 +20,9 @@ public class MonetMessage {
 
     private final byte serverStatus;
 
+    /**
+     * @param message
+     */
     public MonetMessage(HandleMessages message) {
 
         this.message = message;
@@ -31,6 +34,12 @@ public class MonetMessage {
         this.serverStatus = 0;
     }
 
+    /**
+     * @param message
+     *            Synchronization message
+     * @param buffer
+     * @param length
+     */
     public MonetMessage(HandleMessages message, byte[] buffer, int length) {
         this.message = message;
         data = new ByteArrayBuffer(length);
@@ -42,6 +51,10 @@ public class MonetMessage {
         this.serverStatus = 0;
     }
 
+    /**
+     * @param message
+     * @param string
+     */
     public MonetMessage(HandleMessages message, String string) {
 
         this.message = message;
@@ -53,6 +66,10 @@ public class MonetMessage {
         this.serverStatus = 0;
     }
 
+    /**
+     * @param message
+     * @param error
+     */
     public MonetMessage(HandleMessages message, MonetBTAPIError error) {
         this.message = message;
         this.errorInfo = error;
@@ -63,6 +80,11 @@ public class MonetMessage {
         this.serverStatus = 0;
     }
 
+    /**
+     * @param message
+     * @param terminalState
+     * @param command
+     */
     public MonetMessage(HandleMessages message, TerminalState terminalState,
             TransactionCommand command) {
         this.message = message;
@@ -74,6 +96,10 @@ public class MonetMessage {
         this.serverStatus = 0;
     }
 
+    /**
+     * @param message
+     * @param serverStatus
+     */
     public MonetMessage(HandleMessages message, byte serverStatus) {
         this.message = message;
         this.errorInfo = null;
@@ -84,32 +110,53 @@ public class MonetMessage {
         this.serverStatus = serverStatus;
     }
 
+    /**
+     * @return
+     */
     public final HandleMessages getMessage() {
         return message;
     }
 
+    /**
+     * @return
+     */
     public final String getToastMessage() {
         return toastMessage;
     }
 
+    /**
+     * @return
+     */
     public final MonetBTAPIError getErrorInfo() {
         return errorInfo;
     }
 
+    /**
+     * @return
+     */
     public final TerminalState getTerminalState() {
         return terminalState;
     }
 
+    /**
+     * @return
+     */
     public final TransactionCommand getTransactionCommand() {
         return transactionCommand == null ? TransactionCommand.UNKNOWN
                 : transactionCommand;
     }
 
+    /**
+     * @return
+     */
     public final ByteArrayBuffer getData() {
         return data;
     }
 
-    public byte getServerStatus() {
+    /**
+     * @return
+     */
+    public final byte getServerStatus() {
         return serverStatus;
     }
 }

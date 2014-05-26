@@ -13,18 +13,16 @@ public class Vx600ConnectionListener implements ConnectionListener {
     @Override
     public final void onConnectionEstablished() {
         if (messageThread != null) {
-            messageThread.addMessage(HandleMessages.MESSAGE_TOAST,
-                    "VMF connected.");
+            messageThread.addMessageToast("VMF connected.");
         }
     }
 
     @Override
     public final void onConnectionFailed() {
         if (messageThread != null) {
-            messageThread.addMessage(HandleMessages.MESSAGE_TOAST,
-                    MonetBTAPIError.VMF_CONNECTION_FAILED.getMessage());
-            messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
-                    MonetBTAPIError.VMF_CONNECTION_FAILED);
+            messageThread.addMessageToast(MonetBTAPIError.VMF_CONNECTION_FAILED
+                    .getMessage());
+            messageThread.addMessageQuit(MonetBTAPIError.VMF_CONNECTION_FAILED);
         }
 
     }
@@ -32,10 +30,8 @@ public class Vx600ConnectionListener implements ConnectionListener {
     @Override
     public final void onDisconnected(String arg0) {
         if (messageThread != null) {
-            messageThread.addMessage(HandleMessages.MESSAGE_TOAST,
-                    "VMF disconected");
-            messageThread.addMessage(HandleMessages.MESSAGE_QUIT,
-                    MonetBTAPIError.VMF_DISCONNECTED);
+            messageThread.addMessageToast("VMF disconected");
+            messageThread.addMessageQuit(MonetBTAPIError.VMF_DISCONNECTED);
         }
 
     }
