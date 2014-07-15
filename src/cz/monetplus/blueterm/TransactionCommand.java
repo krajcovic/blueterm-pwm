@@ -12,9 +12,19 @@ public enum TransactionCommand {
     HANDSHAKE,
 
     /**
-     * 
+     * Payment
      */
     PAY,
+
+    /**
+     * Storno last payment.
+     */
+    REVERSAL,
+
+    /**
+     * Total balancing.
+     */
+    CLOSE_TOTAL_BALANCING,
 
     /**
      * Application master info(version).

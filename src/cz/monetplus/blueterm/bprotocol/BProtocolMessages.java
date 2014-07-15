@@ -8,6 +8,10 @@ import java.util.Locale;
  * @author "Dusan Krajcovic dusan.krajcovic [at] monetplus.cz"
  * 
  */
+/**
+ * @author "Dusan Krajcovic dusan.krajcovic [at] monetplus.cz"
+ * 
+ */
 public final class BProtocolMessages {
 
     /**
@@ -121,6 +125,21 @@ public final class BProtocolMessages {
                 getCurrentDateTimeForHeader(), "0000", "A5A5");
 
         bprotocol.getTagMap().put(BProtocolTag.TransactionType, "95");
+
+        BProtocolFactory factory = new BProtocolFactory();
+
+        return factory.serialize(bprotocol);
+    }
+
+    /**
+     * @return Byte array with message.
+     */
+    public static byte[] getCloseTotalBalancing() {
+
+        BProtocol bprotocol = new BProtocol("B1", "01", "        ",
+                getCurrentDateTimeForHeader(), "0000", "A5A5");
+
+        bprotocol.getTagMap().put(BProtocolTag.TransactionType, "60");
 
         BProtocolFactory factory = new BProtocolFactory();
 

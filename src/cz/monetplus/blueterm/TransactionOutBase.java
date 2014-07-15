@@ -8,11 +8,23 @@ package cz.monetplus.blueterm;
  */
 public class TransactionOutBase implements TransactionOut {
 
+    // Navratovy kod informujici o problému v blueterm a nebo v terminálu. O =
+    // OK
     private Integer resultCode;
+
+    // Popis navratového kodu
     private String message;
+
+    // Autorizacni kod po platbě
     private Integer authCode;
+
+    // Sekvencni cislo platby
     private Integer seqId;
+
+    // Cislo pouzite katy
     private String cardNumber;
+
+    // Typ pouzite karty pri platbe
     protected String cardType;
 
     public TransactionOutBase() {

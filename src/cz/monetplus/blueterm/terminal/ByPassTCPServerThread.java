@@ -63,7 +63,7 @@ public class ByPassTCPServerThread extends TerminalsThread {
             if (serverSocket != null) {
                 serverSocket.setSoTimeout(2000);
 
-                VMF.vmfAppLinkSend(DESTINATION_ID,
+                int vmfAppLinkSend = VMF.vmfAppLinkSend(DESTINATION_ID,
                         ("127.0.0.1:" + listenPort).getBytes(), 120 * 100);
 
                 Socket socket = serverSocket.accept();

@@ -147,12 +147,29 @@ public class MessageThread extends Thread {
                         transactionInputData.getInvoice())).createFrame()));
     }
 
+    private void reversal() {
+        this.addMessageTermWrite(SLIPFrame.createFrame(new TerminalFrame(
+                terminalPort, BProtocolMessages.getReversal(
+                        transactionInputData.getAmount(),
+                        transactionInputData.getCurrency(),
+                        transactionInputData.getInvoice())).createFrame()));
+    }
+
     /**
      * Create and send handshake to terminal.
      */
     private void handshake() {
         this.addMessageTermWrite(SLIPFrame.createFrame(new TerminalFrame(
                 terminalPort, BProtocolMessages.getHanshake()).createFrame()));
+    }
+
+    /**
+     * Create and send handshake to terminal.
+     */
+    private void closeTotalBalancing() {
+        this.addMessageTermWrite(SLIPFrame.createFrame(new TerminalFrame(
+                terminalPort, BProtocolMessages.getCloseTotalBalancing())
+                .createFrame()));
     }
 
     /**
@@ -439,6 +456,12 @@ public class MessageThread extends Thread {
                 break;
             case PAY:
                 pay();
+                break;
+            case REVERSAL:
+                reversal();
+                break;
+            case CLOSE_TOTAL_BALANCING:
+                closeTotalBalancing();
                 break;
             case ONLYCONNECT:
                 break;

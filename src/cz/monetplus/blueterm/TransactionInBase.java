@@ -2,11 +2,20 @@ package cz.monetplus.blueterm;
 
 public class TransactionInBase implements TransactionIn {
 
+    @Deprecated
     private String hostIP;
+    @Deprecated
     private int hostPort;
+    // Operace zaslana do terminalu
     private TransactionCommand command;
+
+    // Částka zaslana na terminal při platbě
     private Integer amount;
+
+    // Varibilni symbol
     private String invoice;
+
+    // ISO code meny
     private Integer currency;
 
     public TransactionInBase() {
