@@ -12,9 +12,9 @@ public interface TransactionOut {
 
     public abstract Integer getSeqId();
 
-    public abstract void setAuthCode(Integer authCode);
+    public abstract void setAuthCode(String authCode);
 
-    public abstract Integer getAuthCode();
+    public abstract String getAuthCode();
 
     public abstract void setMessage(String message);
 

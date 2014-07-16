@@ -387,10 +387,10 @@ public class MessageThread extends Thread {
         transactionOutputData.setMessage(bprotocol.getTagMap().get(
                 BProtocolTag.ServerMessage));
         try {
-            transactionOutputData.setAuthCode(Integer.valueOf(bprotocol
-                    .getTagMap().get(BProtocolTag.AuthCode)));
+            transactionOutputData.setAuthCode(bprotocol.getTagMap().get(
+                    BProtocolTag.AuthCode));
         } catch (Exception e) {
-            transactionOutputData.setAuthCode(0);
+            transactionOutputData.setAuthCode("Neaslan");
         }
         try {
             transactionOutputData.setSeqId(Integer.valueOf(bprotocol

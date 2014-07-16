@@ -16,7 +16,7 @@ public class TransactionOutBase implements TransactionOut {
     private String message;
 
     // Autorizacni kod po platbě
-    private Integer authCode;
+    private String authCode;
 
     // Sekvencni cislo platby
     private Integer seqId;
@@ -52,12 +52,12 @@ public class TransactionOutBase implements TransactionOut {
     }
 
     @Override
-    public final Integer getAuthCode() {
+    public final String getAuthCode() {
         return authCode;
     }
 
     @Override
-    public final void setAuthCode(Integer authCode) {
+    public final void setAuthCode(String authCode) {
         this.authCode = authCode;
     }
 
