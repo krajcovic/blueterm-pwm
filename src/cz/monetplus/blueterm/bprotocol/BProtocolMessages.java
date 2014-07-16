@@ -100,7 +100,7 @@ public final class BProtocolMessages {
      * @return Byte array with message.
      */
     public static byte[] getReversal(int amount, int currencyCode,
-            String invoiceNumber) {
+            String invoiceNumber, String authCode) {
 
         BProtocol bprotocol = new BProtocol("B1", "01", "        ",
                 getCurrentDateTimeForHeader(), "0000", "A5A5");
@@ -109,7 +109,8 @@ public final class BProtocolMessages {
         bprotocol.getTagMap().put(BProtocolTag.Amount1, String.valueOf(amount));
         bprotocol.getTagMap().put(BProtocolTag.CurrencyCode2,
                 String.valueOf(currencyCode));
-        bprotocol.getTagMap().put(BProtocolTag.InvoiceNumber, invoiceNumber);
+        bprotocol.getTagMap().put(BProtocolTag.AuthCode, authCode);
+        // bprotocol.getTagMap().put(BProtocolTag.InvoiceNumber, invoiceNumber);
 
         BProtocolFactory factory = new BProtocolFactory();
 

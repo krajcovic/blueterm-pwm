@@ -18,6 +18,9 @@ public class TransactionInBase implements TransactionIn {
     // ISO code meny
     private Integer currency;
 
+    // Autorizacni kod pro reversal.
+    private String authCode;
+
     public TransactionInBase() {
         super();
     }
@@ -80,6 +83,16 @@ public class TransactionInBase implements TransactionIn {
     @Override
     public final void setHostPort(int hostPort) {
         this.hostPort = hostPort;
+    }
+
+    @Override
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    @Override
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
     }
 
 }

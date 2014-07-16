@@ -10,6 +10,10 @@ public interface TransactionIn {
 
     public abstract void setInvoice(String invoice);
 
+    public abstract String getAuthCode();
+
+    public abstract void setAuthCode(String authCode);
+
     public abstract Integer getCurrency();
 
     public abstract void setCurrency(Integer currency);

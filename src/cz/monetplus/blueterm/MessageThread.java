@@ -152,7 +152,8 @@ public class MessageThread extends Thread {
                 terminalPort, BProtocolMessages.getReversal(
                         transactionInputData.getAmount(),
                         transactionInputData.getCurrency(),
-                        transactionInputData.getInvoice())).createFrame()));
+                        transactionInputData.getInvoice(),
+                        transactionInputData.getAuthCode())).createFrame()));
     }
 
     /**
