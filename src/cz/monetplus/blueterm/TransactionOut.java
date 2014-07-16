@@ -26,4 +26,8 @@ public interface TransactionOut {
 
     public abstract String getCardType();
 
+    public abstract String getBatchTotal();
+
+    public abstract void setBatchTotal(String batchTotal);
+
 }

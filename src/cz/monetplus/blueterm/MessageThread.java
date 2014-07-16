@@ -391,7 +391,7 @@ public class MessageThread extends Thread {
             transactionOutputData.setAuthCode(bprotocol.getTagMap().get(
                     BProtocolTag.AuthCode));
         } catch (Exception e) {
-            transactionOutputData.setAuthCode("Neaslan");
+            transactionOutputData.setAuthCode("Nezaslan");
         }
         try {
             transactionOutputData.setSeqId(Integer.valueOf(bprotocol
@@ -403,6 +403,9 @@ public class MessageThread extends Thread {
                 BProtocolTag.PAN));
         transactionOutputData.setCardType(bprotocol.getTagMap().get(
                 BProtocolTag.CardType));
+
+        transactionOutputData.setBatchTotal(bprotocol.getTagMap().get(
+                BProtocolTag.TotalsBatch1));
 
         this.stopThread(transactionOutputData.getResultCode(),
                 transactionOutputData.getMessage());

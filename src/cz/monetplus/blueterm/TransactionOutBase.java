@@ -27,6 +27,15 @@ public class TransactionOutBase implements TransactionOut {
     // Typ pouzite karty pri platbe
     protected String cardType;
 
+    /**
+     * Toto pole je tvořeno skupinou polí reprezentující součty terminálu při
+     * uzávěrce. Obsahuje shift and batch ID, spolu s počty debitních,
+     * creditních operací a součty částek těchto operací. Autorizační server
+     * ukládá tyto součty a spolu se svými součty do transakčního logu.Tyto
+     * součty obsahují znak znaménka (+ nebo -) na první pozici pole hodnty.
+     */
+    private String batchTotal;
+
     public TransactionOutBase() {
         super();
     }
@@ -89,6 +98,16 @@ public class TransactionOutBase implements TransactionOut {
     @Override
     public final String getCardType() {
         return cardType;
+    }
+
+    @Override
+    public String getBatchTotal() {
+        return batchTotal;
+    }
+
+    @Override
+    public void setBatchTotal(String batchTotal) {
+        this.batchTotal = batchTotal;
     }
 
 }
