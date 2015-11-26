@@ -10,7 +10,7 @@ public class TransactionInBase implements TransactionIn {
     private TransactionCommand command;
 
     // Částka zaslana na terminal při platbě
-    private Integer amount;
+    private Long amount;
 
     // Varibilni symbol
     private String invoice;
@@ -21,17 +21,18 @@ public class TransactionInBase implements TransactionIn {
     // Autorizacni kod pro reversal.
     private String authCode;
 
-    public TransactionInBase() {
+    public TransactionInBase(TransactionCommand command) {
         super();
+        this.command = command;
     }
 
     @Override
-    public final Integer getAmount() {
+    public final Long getAmount() {
         return amount;
     }
 
     @Override
-    public final void setAmount(Integer amount) {
+    public final void setAmount(Long amount) {
         this.amount = amount;
     }
 

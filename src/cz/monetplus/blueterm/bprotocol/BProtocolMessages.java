@@ -47,7 +47,7 @@ public final class BProtocolMessages {
      *            Invoice number.
      * @return Byte array with message.
      */
-    public static byte[] getSale(int amount, int currencyCode,
+    public static byte[] getSale(Long amount, int currencyCode,
             String invoiceNumber) {
 
         BProtocol bprotocol = new BProtocol("B1", "01", "        ",
@@ -99,7 +99,7 @@ public final class BProtocolMessages {
      *            Invoice number.
      * @return Byte array with message.
      */
-    public static byte[] getReversal(int amount, int currencyCode,
+    public static byte[] getReversal(Long amount, int currencyCode,
             String invoiceNumber, String authCode) {
 
         BProtocol bprotocol = new BProtocol("B1", "01", "        ",
