@@ -2,9 +2,9 @@ package cz.monetplus.blueterm;
 
 public interface TransactionIn {
 
-    public abstract Integer getAmount();
+    public abstract Long getAmount();
 
-    public abstract void setAmount(Integer amount);
+    public abstract void setAmount(Long amount);
 
     public abstract String getInvoice();
 
